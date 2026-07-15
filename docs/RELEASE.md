@@ -15,10 +15,10 @@
   ```kotlin
   signingConfigs {
       create("release") {
-          storeFile = file(System.getenv("EYECARE_KEYSTORE") ?: "release.keystore")
-          storePassword = System.getenv("EYECARE_STORE_PASSWORD")
-          keyAlias = System.getenv("EYECARE_KEY_ALIAS")
-          keyPassword = System.getenv("EYECARE_KEY_PASSWORD")
+          storeFile = file(System.getenv("EYESCARE_KEYSTORE") ?: "release.keystore")
+          storePassword = System.getenv("EYESCARE_STORE_PASSWORD")
+          keyAlias = System.getenv("EYESCARE_KEY_ALIAS")
+          keyPassword = System.getenv("EYESCARE_KEY_PASSWORD")
       }
   }
   // buildTypes.release { signingConfig = signingConfigs.getByName("release") }

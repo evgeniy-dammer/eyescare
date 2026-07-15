@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.eyecare"
+    namespace = "com.eyescare"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.eyecare"
+        applicationId = "com.eyescare"
         minSdk = 26
         targetSdk = 36
         versionCode = 1

@@ -38,6 +38,10 @@ android {
         compose = true
         buildConfig = true
     }
+    androidResources {
+        // .task-модель MediaPipe нельзя сжимать — читается mmap'ом из APK на лету.
+        noCompress += "task"
+    }
 }
 
 dependencies {
@@ -71,6 +75,11 @@ dependencies {
 
     // ML Kit Face Detection
     implementation("com.google.mlkit:face-detection:16.1.6")
+
+    // MediaPipe Face Landmarker — прототип измерения дистанции по диаметру радужки (478 landmarks
+    // с зрачками/радужкой). On-device, оффлайн. Используется только в debug-сборке для сравнения
+    // с текущим IPD-методом; в release путь отключён (BuildConfig.DEBUG).
+    implementation("com.google.mediapipe:tasks-vision:0.10.14")
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")

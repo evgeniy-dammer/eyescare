@@ -83,6 +83,10 @@ class ForegroundMonitoringService : LifecycleService() {
             onStatusUpdate = { status ->
                 updateNotification(status)
             },
+            // Прототип (только debug): дистанция по радужке для сравнения с IPD-методом.
+            onIrisDistanceUpdate = { irisDistance ->
+                MonitoringStateHolder.setIrisDistance(irisDistance)
+            },
             onThresholdExceeded = { isExceeded ->
                 MonitoringStateHolder.setTooClose(isExceeded)
                 handleThresholdExceeded(isExceeded)

@@ -106,6 +106,41 @@ private fun formatDuration(seconds: Long): String {
     return if (hours > 0) "$hours$h $minutes$m" else "$minutes$m"
 }
 
+/**
+ * Прототип (только debug): показывает дистанцию по радужке (MediaPipe) рядом с IPD-дистанцией и их
+ * разницу — чтобы сравнить точность на устройстве при известном расстоянии (30/50/70 см).
+ */
+@Composable
+private fun IrisComparison(ipdCm: Float?, irisCm: Float?) {
+    Column(
+        modifier = Modifier.padding(top = 12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(2.dp),
+    ) {
+        Text(
+            text = "— сравнение (debug) —",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(
+            text = "IPD (ML Kit): " + (ipdCm?.let { String.format(Locale.getDefault(), "%.1f см", it) } ?: "—"),
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        Text(
+            text = "Радужка (MediaPipe): " + (irisCm?.let { String.format(Locale.getDefault(), "%.1f см", it) } ?: "—"),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.primary,
+        )
+        if (ipdCm != null && irisCm != null) {
+            Text(
+                text = String.format(Locale.getDefault(), "Δ = %.1f см", irisCm - ipdCm),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
 @Composable
 private fun LiveDistanceCard(status: MonitoringStatus) {
     GlassCard(modifier = Modifier.fillMaxWidth()) {
@@ -141,6 +176,9 @@ private fun LiveDistanceCard(status: MonitoringStatus) {
                     style = MaterialTheme.typography.bodyLarge,
                     color = if (status.tooClose) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                if (BuildConfig.DEBUG) {
+                    IrisComparison(ipdCm = distance, irisCm = status.irisDistanceCm)
+                }
             } else {
                 Text(
                     text = stringResource(R.string.notif_face_not_found),

@@ -10,6 +10,8 @@ data class MonitoringStatus(
     val running: Boolean = false,
     val distanceCm: Float? = null, // null — лицо не найдено / нет данных
     val tooClose: Boolean = false,
+    // Прототип (только debug): дистанция по диаметру радужки (MediaPipe) для сравнения с IPD-методом.
+    val irisDistanceCm: Float? = null,
 )
 
 /**
@@ -23,6 +25,7 @@ object MonitoringStateHolder {
     fun setRunning(running: Boolean) = _state.update { it.copy(running = running) }
     fun setDistance(distanceCm: Float?) = _state.update { it.copy(distanceCm = distanceCm) }
     fun setTooClose(tooClose: Boolean) = _state.update { it.copy(tooClose = tooClose) }
+    fun setIrisDistance(distanceCm: Float?) = _state.update { it.copy(irisDistanceCm = distanceCm) }
 
     /** Сбрасывает состояние при остановке сервиса. */
     fun reset() {

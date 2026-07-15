@@ -2,6 +2,9 @@ package com.eyecare
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Matrix
+import androidx.camera.core.ImageProxy
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
@@ -31,10 +34,16 @@ class CameraAnalyzer(
     private val settingsRepository: SettingsRepository,
     private val onDistanceUpdate: (Float?) -> Unit,
     private val onStatusUpdate: (String) -> Unit,
-    private val onThresholdExceeded: (Boolean) -> Unit
+    private val onThresholdExceeded: (Boolean) -> Unit,
+    private val onIrisDistanceUpdate: (Float?) -> Unit = {},
 ) {
     private val cameraExecutor = Executors.newSingleThreadExecutor()
     private val distanceCalculator = DistanceCalculator(settingsRepository)
+
+    // Прототип сравнения точности (только debug): дистанция по диаметру радужки (MediaPipe).
+    // Работает параллельно основному IPD-пути, не влияя на мониторинг/оверлей.
+    private val irisMeasurer: IrisMeasurer? = if (BuildConfig.DEBUG) IrisMeasurer(context) else null
+    private val irisCalculator = IrisDistanceCalculator(settingsRepository)
 
     private val handler = Handler(Looper.getMainLooper())
     private var retryRunnable: Runnable? = null
@@ -132,6 +141,12 @@ class CameraAnalyzer(
                 if (mediaImage != null) {
                     val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
 
+                    // Прототип: параллельный замер по радужке (синхронно, на этом же executor, до
+                    // асинхронного ML Kit — imageProxy ещё открыт). Тот же image.width → тот же focal_px.
+                    if (BuildConfig.DEBUG) {
+                        measureIrisDebug(imageProxy, image.width)
+                    }
+
                     detector.process(image)
                         .addOnSuccessListener { faces ->
                             if (faces.isNotEmpty()) {
@@ -211,6 +226,7 @@ class CameraAnalyzer(
         cameraProvider = null
         faceDetector?.close()
         faceDetector = null
+        irisCalculator.reset()
         lastProcessedMs = 0L
         lastPacingDistanceCm = null
     }
@@ -218,6 +234,7 @@ class CameraAnalyzer(
     /** Финальное освобождение ресурсов при уничтожении сервиса (executor больше не нужен). */
     fun shutdown() {
         stop()
+        irisMeasurer?.close()
         if (!cameraExecutor.isShutdown) {
             cameraExecutor.shutdown()
         }
@@ -227,10 +244,50 @@ class CameraAnalyzer(
      *  смешивать с устаревшим значением, и сообщаем UI об отсутствии данных. */
     private fun onFaceLost() {
         distanceCalculator.reset()
+        irisCalculator.reset()
+        if (BuildConfig.DEBUG) onIrisDistanceUpdate(null)
         lastPacingDistanceCm = null
         onDistanceUpdate(null)
         // Если лицо пропало надолго, пока висел баннер «слишком близко» — снимаем его.
         overlayHysteresis.onFaceLost()?.let { onThresholdExceeded(it) }
+    }
+
+    /**
+     * Прототип сравнения (только debug): меряет диаметр радужки через MediaPipe на том же кадре и
+     * публикует iris-дистанцию рядом с IPD-дистанцией. Не трогает мониторинг/оверлей.
+     *
+     * Bitmap берётся из [imageProxy] (масштаб = кадр анализа) и поворачивается до вертикали для
+     * распознавания; поворот не меняет пиксельный масштаб, поэтому диаметр совместим с [imageWidth]
+     * (той же величиной, на которой строится focal_px).
+     */
+    private fun measureIrisDebug(imageProxy: ImageProxy, imageWidth: Int) {
+        val measurer = irisMeasurer ?: return
+        var upright: Bitmap? = null
+        var src: Bitmap? = null
+        try {
+            src = imageProxy.toBitmap()
+            val rotation = imageProxy.imageInfo.rotationDegrees
+            upright = if (rotation != 0) {
+                val m = Matrix().apply { postRotate(rotation.toFloat()) }
+                Bitmap.createBitmap(src, 0, 0, src.width, src.height, m, true)
+            } else {
+                src
+            }
+            val irisPx = measurer.measureIrisDiameterPx(upright)
+            if (irisPx != null) {
+                // Наклон головы для прототипа считаем ~0 (сравнение делается при фронтальном взгляде).
+                val irisDistance = irisCalculator.calculate(irisPx, 0f, 0f, imageWidth)
+                onIrisDistanceUpdate(irisDistance)
+            } else {
+                irisCalculator.reset()
+                onIrisDistanceUpdate(null)
+            }
+        } catch (e: Exception) {
+            Log.e("CameraAnalyzer", "Iris measurement failed", e)
+        } finally {
+            if (upright != null && upright !== src) upright.recycle()
+            src?.recycle()
+        }
     }
 
     private fun handleDistance(distance: Float) {

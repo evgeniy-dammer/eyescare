@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Контур глаза -->
+    <path
+        android:pathData="M24,54 C38,36 70,36 84,54 C70,72 38,72 24,54 Z"
+        android:strokeColor="#FF000000"
+        android:strokeWidth="5"
+        android:fillColor="#00000000" />
+
+    <!-- Зрачок -->
+    <path
+        android:pathData="M54,47 C57.866,47 61,50.134 61,54 C61,57.866 57.866,61 54,61 C50.134,61 47,57.866 47,54 C47,50.134 50.134,47 54,47 Z"
+        android:fillColor="#FF000000" />
+</vector>

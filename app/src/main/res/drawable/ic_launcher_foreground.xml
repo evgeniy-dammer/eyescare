@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Белок глаза (миндалевидная форма) -->
+    <path
+        android:pathData="M24,54 C38,36 70,36 84,54 C70,72 38,72 24,54 Z"
+        android:fillColor="#FFFFFFFF" />
+
+    <!-- Радужка -->
+    <path
+        android:pathData="M54,39 C62.284,39 69,45.716 69,54 C69,62.284 62.284,69 54,69 C45.716,69 39,62.284 39,54 C39,45.716 45.716,39 54,39 Z"
+        android:fillColor="#FF0A63E0" />
+
+    <!-- Зрачок -->
+    <path
+        android:pathData="M54,47.5 C57.59,47.5 60.5,50.41 60.5,54 C60.5,57.59 57.59,60.5 54,60.5 C50.41,60.5 47.5,57.59 47.5,54 C47.5,50.41 50.41,47.5 54,47.5 Z"
+        android:fillColor="#FF0B1220" />
+
+    <!-- Блик на зрачке -->
+    <path
+        android:pathData="M58,46 C59.657,46 61,47.343 61,49 C61,50.657 59.657,52 58,52 C56.343,52 55,50.657 55,49 C55,47.343 56.343,46 58,46 Z"
+        android:fillColor="#FFFFFFFF" />
+</vector>

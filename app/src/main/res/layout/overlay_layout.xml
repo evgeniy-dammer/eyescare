@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Оверлей «Слишком близко» в стиле iOS: тёмный полноэкранный фон, чистый глиф-предупреждение,
+     крупный жирный заголовок (Inter), подпись и кнопка-пилюля по центру. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#D9000000">
+
+    <LinearLayout
+        android:id="@+id/overlay_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:paddingHorizontal="40dp">
+
+        <!-- Декоративный глиф: текст ниже озвучивает предупреждение → importantForAccessibility=no.
+             android:tint намеренно (на этом ImageView app:tint игнорировался) → tools:ignore. -->
+        <ImageView
+            android:layout_width="84dp"
+            android:layout_height="84dp"
+            android:src="@drawable/ic_warning_ios"
+            android:tint="#FFFF453A"
+            android:importantForAccessibility="no"
+            tools:ignore="UseAppTint" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/too_close"
+            android:fontFamily="@font/inter_variable"
+            android:textFontWeight="700"
+            android:textSize="30sp"
+            android:textColor="#FFFFFFFF"
+            android:gravity="center" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/overlay_move_away"
+            android:fontFamily="@font/inter_variable"
+            android:textSize="17sp"
+            android:textColor="#FFFFFFFF"
+            android:alpha="0.7"
+            android:gravity="center" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/home_button"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="36dp"
+            android:paddingHorizontal="32dp"
+            android:text="@string/action_stop"
+            android:fontFamily="@font/inter_variable"
+            android:textColor="#FFFFFFFF"
+            app:cornerRadius="16dp"
+            app:strokeColor="#66FFFFFF" />
+    </LinearLayout>
+</FrameLayout>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand name, not translated -->
+    <string name="app_name" translatable="false">EyesCare</string>
+
+    <!-- Main screen -->
+    <string name="title_monitoring">Distance monitoring</string>
+    <string name="title_child_mode">Child mode</string>
+    <string name="label_threshold">Trigger threshold (cm)</string>
+    <string name="label_language">Language</string>
+    <string name="nav_monitoring">Monitoring</string>
+    <string name="nav_calibration">Calibration</string>
+    <string name="nav_settings">Settings</string>
+    <string name="label_theme">Theme</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="language_system_default">System default</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_stop">Stop</string>
+    <string name="action_save">Save</string>
+
+    <!-- Privacy consent -->
+    <string name="consent_title">Privacy</string>
+    <string name="consent_message">The camera is used exclusively on-device to measure the distance to your eyes. Video and images are never saved or transmitted.</string>
+    <string name="consent_agree">I agree</string>
+
+    <!-- Calibration -->
+    <string name="calib_permission_required">Camera permission is required for calibration</string>
+    <string name="calib_place_face">Place your face inside the oval</string>
+    <string name="calib_face_not_found">Face not found</string>
+    <string name="calib_hold_still">Great! Now hold the phone still</string>
+    <string name="calib_calibrating">Calibrating…</string>
+    <string name="calib_manual_ipd_label">Or enter IPD (mm):</string>
+    <string name="calib_ipd_invalid">Enter IPD between %1$d and %2$d mm</string>
+    <string name="calib_auto_unavailable">Automatic calibration unavailable. Please enter IPD manually.</string>
+    <string name="resume_title">EyesCare paused</string>
+    <string name="resume_text">Tap to resume distance monitoring</string>
+    <string name="channel_resume_name">Resume monitoring</string>
+    <string name="label_background">Background activity</string>
+    <string name="background_desc">Monitoring runs as a background service. To keep the system from stopping it, allow the app to run without battery restrictions and enable autostart.</string>
+    <string name="battery_opt_title">Battery optimization</string>
+    <string name="battery_opt_unrestricted">Unrestricted</string>
+    <string name="battery_opt_restricted">System may stop it</string>
+    <string name="autostart_title">Autostart</string>
+    <string name="autostart_desc">Allow autostart so the system doesn\'t stop the app</string>
+    <string name="notif_low_battery_title">Monitoring stopped</string>
+    <string name="notif_low_battery_text">Turned off to save battery. Turn it back on once charged.</string>
+    <string name="break_title">Time for a break</string>
+    <string name="break_text">Look at something ~6 m away for about 20 seconds</string>
+    <string name="channel_break_name">Break reminders</string>
+    <string name="label_break_reminders">Break reminders (20-20-20)</string>
+    <string name="stats_title">This week</string>
+    <string name="stats_monitoring_time">Monitoring time</string>
+    <string name="stats_too_close_time">Too close</string>
+    <string name="stats_too_close_events">Close events</string>
+    <string name="unit_hour">h</string>
+    <string name="unit_min">min</string>
+
+    <!-- Overlay -->
+    <string name="too_close">Too close!</string>
+    <string name="overlay_move_away">Move the device away to continue</string>
+
+    <!-- Notifications / service -->
+    <string name="notif_warning_text">Please move the device away.</string>
+    <string name="notif_distance">Current distance: %1$.1f cm</string>
+    <string name="notif_face_not_found">Face not found. Make sure the camera can see you.</string>
+    <string name="notif_initializing">Initializing camera…</string>
+    <string name="notif_running_title">EyesCare is running</string>
+    <string name="channel_monitoring_name">Eye Care Monitoring</string>
+    <string name="channel_warning_name">Eye Care Warnings</string>
+    <string name="channel_warning_desc">Notifications about being too close to the screen</string>
+
+    <!-- Camera status -->
+    <string name="unit_cm">cm</string>
+    <string name="status_active">Monitoring active</string>
+    <string name="status_camera_busy">Camera is busy. Retrying in 5 s…</string>
+
+    <!-- Language picker: endonyms, order MUST match supportedLanguageTags in MainActivity -->
+    <string-array name="language_names" translatable="false">
+        <item>English</item>
+        <item>Deutsch</item>
+        <item>Français</item>
+        <item>Español</item>
+        <item>Русский</item>
+        <item>Italiano</item>
+        <item>Türkçe</item>
+    </string-array>
+    <!-- Onboarding -->
+    <string name="onboarding_subtitle">Keep a healthy distance from your screen.</string>
+    <string name="onboarding_point1_title">Distance monitoring</string>
+    <string name="onboarding_point1_desc">Warns you when you get too close to the screen.</string>
+    <string name="onboarding_point2_title">Private by design</string>
+    <string name="onboarding_point2_desc">The camera runs on-device only. Video is never saved or sent.</string>
+    <string name="onboarding_point3_title">Quick calibration</string>
+    <string name="onboarding_point3_desc">Calibrate by face or enter your IPD for accuracy.</string>
+    <string name="onboarding_start">Get started</string>
+    <string name="onboarding_point4_title">Break reminders</string>
+    <string name="onboarding_point4_desc">Reminds you to rest: every 20 minutes, look far away for 20 seconds.</string>
+    <string name="onboarding_point5_title">Child mode</string>
+    <string name="onboarding_point5_desc">A stricter distance threshold for children.</string>
+</resources>

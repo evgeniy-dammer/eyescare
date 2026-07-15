@@ -1,0 +1,21 @@
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+# Каталоги сборки любого модуля (app/build и т.п.), не только корневой /build
+**/build/
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+# Кэш/сессии компилятора Kotlin
+.kotlin
+# Локальные персональные настройки Claude Code (общий settings.json можно коммитить)
+.claude/settings.local.json

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_monitoring">Мониторинг расстояния</string>
+    <string name="title_child_mode">Детский режим</string>
+    <string name="label_threshold">Порог срабатывания (см)</string>
+    <string name="label_language">Язык</string>
+    <string name="nav_monitoring">Мониторинг</string>
+    <string name="nav_calibration">Калибровка</string>
+    <string name="nav_settings">Настройки</string>
+    <string name="label_theme">Тема</string>
+    <string name="theme_light">Светлая</string>
+    <string name="theme_dark">Тёмная</string>
+    <string name="language_system_default">Как в системе</string>
+    <string name="action_cancel">Отмена</string>
+    <string name="action_stop">Остановить</string>
+    <string name="action_save">Сохранить</string>
+
+
+    <string name="consent_title">Конфиденциальность</string>
+    <string name="consent_message">Камера используется исключительно локально для измерения расстояния до глаз. Видео и изображения не сохраняются и не передаются.</string>
+    <string name="consent_agree">Я согласен</string>
+
+    <string name="calib_permission_required">Для калибровки необходимо разрешение на камеру</string>
+    <string name="calib_place_face">Поместите ваше лицо в овал</string>
+    <string name="calib_face_not_found">Лицо не найдено</string>
+    <string name="calib_hold_still">Отлично! Теперь держите телефон неподвижно</string>
+    <string name="calib_calibrating">Калибровка…</string>
+    <string name="calib_manual_ipd_label">Или введите IPD (мм):</string>
+    <string name="calib_ipd_invalid">Введите IPD от %1$d до %2$d мм</string>
+    <string name="calib_auto_unavailable">Автокалибровка недоступна. Введите IPD вручную.</string>
+    <string name="resume_title">EyesCare приостановлен</string>
+    <string name="resume_text">Нажмите, чтобы возобновить мониторинг расстояния</string>
+    <string name="channel_resume_name">Возобновление мониторинга</string>
+    <string name="label_background">Работа в фоне</string>
+    <string name="background_desc">Мониторинг работает как фоновый сервис. Чтобы система его не выгружала, разрешите работу без ограничений батареи и включите автозапуск.</string>
+    <string name="battery_opt_title">Оптимизация батареи</string>
+    <string name="battery_opt_unrestricted">Без ограничений</string>
+    <string name="battery_opt_restricted">Система может выгрузить</string>
+    <string name="autostart_title">Автозапуск</string>
+    <string name="autostart_desc">Разрешите автозапуск, чтобы система не выгружала приложение</string>
+    <string name="notif_low_battery_title">Мониторинг выключен</string>
+    <string name="notif_low_battery_text">Отключён для экономии заряда. Включите снова после зарядки.</string>
+    <string name="break_title">Пора сделать перерыв</string>
+    <string name="break_text">Посмотрите вдаль (~6 м) около 20 секунд</string>
+    <string name="channel_break_name">Напоминания о перерывах</string>
+    <string name="label_break_reminders">Напоминания о перерывах (20-20-20)</string>
+    <string name="stats_title">За неделю</string>
+    <string name="stats_monitoring_time">Время мониторинга</string>
+    <string name="stats_too_close_time">Слишком близко</string>
+    <string name="stats_too_close_events">Сближений</string>
+    <string name="unit_hour">ч</string>
+    <string name="unit_min">мин</string>
+
+    <string name="too_close">Слишком близко!</string>
+    <string name="overlay_move_away">Отодвиньте устройство для продолжения</string>
+
+    <string name="notif_warning_text">Пожалуйста, отодвиньте устройство.</string>
+    <string name="notif_distance">Текущая дистанция: %1$.1f см</string>
+    <string name="notif_face_not_found">Лицо не найдено. Убедитесь, что камера вас видит.</string>
+    <string name="notif_initializing">Инициализация камеры…</string>
+    <string name="notif_running_title">EyesCare работает</string>
+    <string name="channel_monitoring_name">Мониторинг Eye Care</string>
+    <string name="channel_warning_name">Предупреждения Eye Care</string>
+    <string name="channel_warning_desc">Уведомления о слишком близком расстоянии до экрана</string>
+
+    <string name="unit_cm">см</string>
+    <string name="status_active">Мониторинг активен</string>
+    <string name="status_camera_busy">Камера занята. Повторная попытка через 5 сек…</string>
+    <!-- Onboarding -->
+    <string name="onboarding_subtitle">Держите безопасное расстояние до экрана.</string>
+    <string name="onboarding_point1_title">Мониторинг расстояния</string>
+    <string name="onboarding_point1_desc">Предупреждает, когда вы слишком близко к экрану.</string>
+    <string name="onboarding_point2_title">Приватность</string>
+    <string name="onboarding_point2_desc">Камера работает только локально. Видео не сохраняется и не передаётся.</string>
+    <string name="onboarding_point3_title">Быстрая калибровка</string>
+    <string name="onboarding_point3_desc">Откалибруйте по лицу или введите свой IPD для точности.</string>
+    <string name="onboarding_start">Начать</string>
+    <string name="onboarding_point4_title">Перерывы 20-20-20</string>
+    <string name="onboarding_point4_desc">Напоминает делать перерывы: каждые 20 минут смотреть вдаль 20 секунд.</string>
+    <string name="onboarding_point5_title">Детский режим</string>
+    <string name="onboarding_point5_desc">Более строгий порог расстояния для детей.</string>
+</resources>

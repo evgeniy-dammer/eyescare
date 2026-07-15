@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_monitoring">Abstandsüberwachung</string>
+    <string name="title_child_mode">Kindermodus</string>
+    <string name="label_threshold">Auslöseschwelle (cm)</string>
+    <string name="label_language">Sprache</string>
+    <string name="nav_monitoring">Überwachung</string>
+    <string name="nav_calibration">Kalibrierung</string>
+    <string name="nav_settings">Einstellungen</string>
+    <string name="label_theme">Design</string>
+    <string name="theme_light">Hell</string>
+    <string name="theme_dark">Dunkel</string>
+    <string name="language_system_default">Systemstandard</string>
+    <string name="action_cancel">Abbrechen</string>
+    <string name="action_stop">Stoppen</string>
+    <string name="action_save">Speichern</string>
+
+
+    <string name="consent_title">Datenschutz</string>
+    <string name="consent_message">Die Kamera wird ausschließlich lokal auf dem Gerät verwendet, um den Abstand zu Ihren Augen zu messen. Videos und Bilder werden niemals gespeichert oder übertragen.</string>
+    <string name="consent_agree">Ich stimme zu</string>
+
+    <string name="calib_permission_required">Für die Kalibrierung ist die Kameraberechtigung erforderlich</string>
+    <string name="calib_place_face">Platzieren Sie Ihr Gesicht im Oval</string>
+    <string name="calib_face_not_found">Kein Gesicht erkannt</string>
+    <string name="calib_hold_still">Super! Halten Sie das Telefon jetzt still</string>
+    <string name="calib_calibrating">Kalibrierung…</string>
+    <string name="calib_manual_ipd_label">Oder IPD eingeben (mm):</string>
+    <string name="calib_ipd_invalid">IPD zwischen %1$d und %2$d mm eingeben</string>
+    <string name="calib_auto_unavailable">Automatische Kalibrierung nicht verfügbar. Bitte IPD manuell eingeben.</string>
+    <string name="resume_title">EyesCare pausiert</string>
+    <string name="resume_text">Tippen, um die Abstandsüberwachung fortzusetzen</string>
+    <string name="channel_resume_name">Überwachung fortsetzen</string>
+    <string name="label_background">Hintergrundaktivität</string>
+    <string name="background_desc">Die Überwachung läuft als Hintergrunddienst. Damit das System ihn nicht beendet, erlaube die Ausführung ohne Akku-Einschränkungen und aktiviere den Autostart.</string>
+    <string name="battery_opt_title">Akku-Optimierung</string>
+    <string name="battery_opt_unrestricted">Uneingeschränkt</string>
+    <string name="battery_opt_restricted">Kann vom System beendet werden</string>
+    <string name="autostart_title">Autostart</string>
+    <string name="autostart_desc">Erlaube den Autostart, damit das System die App nicht beendet</string>
+    <string name="notif_low_battery_title">Überwachung gestoppt</string>
+    <string name="notif_low_battery_text">Zum Energiesparen deaktiviert. Nach dem Laden wieder einschalten.</string>
+    <string name="break_title">Zeit für eine Pause</string>
+    <string name="break_text">Schauen Sie etwa 20 Sekunden auf etwas ~6 m Entferntes</string>
+    <string name="channel_break_name">Pausenerinnerungen</string>
+    <string name="label_break_reminders">Pausenerinnerungen (20-20-20)</string>
+    <string name="stats_title">Diese Woche</string>
+    <string name="stats_monitoring_time">Überwachungszeit</string>
+    <string name="stats_too_close_time">Zu nah</string>
+    <string name="stats_too_close_events">Annäherungen</string>
+    <string name="unit_hour">Std</string>
+    <string name="unit_min">Min</string>
+    <string name="unit_cm">cm</string>
+
+    <string name="too_close">Zu nah!</string>
+    <string name="overlay_move_away">Bewegen Sie das Gerät weiter weg, um fortzufahren</string>
+
+    <string name="notif_warning_text">Bitte bewegen Sie das Gerät weiter weg.</string>
+    <string name="notif_distance">Aktueller Abstand: %1$.1f cm</string>
+    <string name="notif_face_not_found">Kein Gesicht erkannt. Stellen Sie sicher, dass die Kamera Sie sieht.</string>
+    <string name="notif_initializing">Kamera wird initialisiert…</string>
+    <string name="notif_running_title">EyesCare läuft</string>
+    <string name="channel_monitoring_name">Eye Care Überwachung</string>
+    <string name="channel_warning_name">Eye Care Warnungen</string>
+    <string name="channel_warning_desc">Benachrichtigungen über zu geringen Abstand zum Bildschirm</string>
+
+    <string name="status_active">Überwachung aktiv</string>
+    <string name="status_camera_busy">Kamera ist belegt. Neuer Versuch in 5 s…</string>
+    <!-- Onboarding -->
+    <string name="onboarding_subtitle">Halten Sie einen gesunden Abstand zum Bildschirm.</string>
+    <string name="onboarding_point1_title">Abstandsüberwachung</string>
+    <string name="onboarding_point1_desc">Warnt, wenn Sie dem Bildschirm zu nahe kommen.</string>
+    <string name="onboarding_point2_title">Datenschutz</string>
+    <string name="onboarding_point2_desc">Die Kamera arbeitet nur lokal. Videos werden nie gespeichert oder gesendet.</string>
+    <string name="onboarding_point3_title">Schnelle Kalibrierung</string>
+    <string name="onboarding_point3_desc">Kalibrieren Sie per Gesicht oder geben Sie Ihren IPD ein.</string>
+    <string name="onboarding_start">Los geht es</string>
+    <string name="onboarding_point4_title">Pausen-Erinnerungen</string>
+    <string name="onboarding_point4_desc">Erinnert an Pausen: alle 20 Minuten 20 Sekunden in die Ferne schauen.</string>
+    <string name="onboarding_point5_title">Kindermodus</string>
+    <string name="onboarding_point5_desc">Ein strengerer Abstandsschwellenwert für Kinder.</string>
+</resources>

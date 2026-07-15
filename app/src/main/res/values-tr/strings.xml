@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_monitoring">Mesafe izleme</string>
+    <string name="title_child_mode">Çocuk modu</string>
+    <string name="label_threshold">Tetikleme eşiği (cm)</string>
+    <string name="label_language">Dil</string>
+    <string name="nav_monitoring">İzleme</string>
+    <string name="nav_calibration">Kalibrasyon</string>
+    <string name="nav_settings">Ayarlar</string>
+    <string name="label_theme">Tema</string>
+    <string name="theme_light">Açık</string>
+    <string name="theme_dark">Koyu</string>
+    <string name="language_system_default">Sistem varsayılanı</string>
+    <string name="action_cancel">İptal</string>
+    <string name="action_stop">Durdur</string>
+    <string name="action_save">Kaydet</string>
+
+
+    <string name="consent_title">Gizlilik</string>
+    <string name="consent_message">Kamera yalnızca cihaz üzerinde, gözlerinize olan mesafeyi ölçmek için kullanılır. Video ve görüntüler asla kaydedilmez veya iletilmez.</string>
+    <string name="consent_agree">Kabul ediyorum</string>
+
+    <string name="calib_permission_required">Kalibrasyon için kamera izni gereklidir</string>
+    <string name="calib_place_face">Yüzünüzü ovalin içine yerleştirin</string>
+    <string name="calib_face_not_found">Yüz bulunamadı</string>
+    <string name="calib_hold_still">Harika! Şimdi telefonu sabit tutun</string>
+    <string name="calib_calibrating">Kalibre ediliyor…</string>
+    <string name="calib_manual_ipd_label">Veya IPD girin (mm):</string>
+    <string name="calib_ipd_invalid">%1$d ile %2$d mm arasında bir IPD girin</string>
+    <string name="calib_auto_unavailable">Otomatik kalibrasyon kullanılamıyor. Lütfen IPD\'yi elle girin.</string>
+    <string name="resume_title">EyesCare duraklatıldı</string>
+    <string name="resume_text">Mesafe izlemeyi sürdürmek için dokunun</string>
+    <string name="channel_resume_name">İzlemeyi sürdür</string>
+    <string name="label_background">Arka plan etkinliği</string>
+    <string name="background_desc">İzleme bir arka plan hizmeti olarak çalışır. Sistemin durdurmaması için uygulamanın pil kısıtlaması olmadan çalışmasına izin verin ve otomatik başlatmayı etkinleştirin.</string>
+    <string name="battery_opt_title">Pil optimizasyonu</string>
+    <string name="battery_opt_unrestricted">Kısıtlamasız</string>
+    <string name="battery_opt_restricted">Sistem durdurabilir</string>
+    <string name="autostart_title">Otomatik başlatma</string>
+    <string name="autostart_desc">Sistemin uygulamayı durdurmaması için otomatik başlatmaya izin verin</string>
+    <string name="notif_low_battery_title">İzleme durduruldu</string>
+    <string name="notif_low_battery_text">Pil tasarrufu için kapatıldı. Şarj olduğunda tekrar açın.</string>
+    <string name="break_title">Mola zamanı</string>
+    <string name="break_text">Yaklaşık 20 saniye ~6 m uzağa bakın</string>
+    <string name="channel_break_name">Mola hatırlatıcıları</string>
+    <string name="label_break_reminders">Mola hatırlatıcıları (20-20-20)</string>
+    <string name="stats_title">Bu hafta</string>
+    <string name="stats_monitoring_time">İzleme süresi</string>
+    <string name="stats_too_close_time">Çok yakın</string>
+    <string name="stats_too_close_events">Yakınlaşmalar</string>
+    <string name="unit_hour">sa</string>
+    <string name="unit_min">dk</string>
+    <string name="unit_cm">cm</string>
+
+    <string name="too_close">Çok yakın!</string>
+    <string name="overlay_move_away">Devam etmek için cihazı uzaklaştırın</string>
+
+    <string name="notif_warning_text">Lütfen cihazı uzaklaştırın.</string>
+    <string name="notif_distance">Geçerli mesafe: %1$.1f cm</string>
+    <string name="notif_face_not_found">Yüz bulunamadı. Kameranın sizi gördüğünden emin olun.</string>
+    <string name="notif_initializing">Kamera başlatılıyor…</string>
+    <string name="notif_running_title">EyesCare çalışıyor</string>
+    <string name="channel_monitoring_name">Eye Care İzleme</string>
+    <string name="channel_warning_name">Eye Care Uyarıları</string>
+    <string name="channel_warning_desc">Ekrana çok yakın olma hakkında bildirimler</string>
+
+    <string name="status_active">İzleme etkin</string>
+    <string name="status_camera_busy">Kamera meşgul. 5 sn içinde tekrar denenecek…</string>
+    <!-- Onboarding -->
+    <string name="onboarding_subtitle">Ekranla aranızda sağlıklı bir mesafe koruyun.</string>
+    <string name="onboarding_point1_title">Mesafe izleme</string>
+    <string name="onboarding_point1_desc">Ekrana çok yaklaştığınızda sizi uyarır.</string>
+    <string name="onboarding_point2_title">Gizlilik</string>
+    <string name="onboarding_point2_desc">Kamera yalnızca cihazda çalışır. Video asla kaydedilmez veya gönderilmez.</string>
+    <string name="onboarding_point3_title">Hızlı kalibrasyon</string>
+    <string name="onboarding_point3_desc">Yüzle kalibre edin veya doğruluk için IPD değerinizi girin.</string>
+    <string name="onboarding_start">Başla</string>
+    <string name="onboarding_point4_title">Mola hatırlatıcıları</string>
+    <string name="onboarding_point4_desc">Mola vermeyi hatırlatır: her 20 dakikada 20 saniye uzağa bakın.</string>
+    <string name="onboarding_point5_title">Çocuk modu</string>
+    <string name="onboarding_point5_desc">Çocuklar için daha sıkı bir mesafe eşiği.</string>
+</resources>

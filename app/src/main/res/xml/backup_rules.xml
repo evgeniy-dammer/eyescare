@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- Настройки шифруются мастер-ключом из Android Keystore, который не переносится
+         между устройствами. Исключаем sharedpref из бэкапа (Android 8–11), иначе после
+         restore на другом устройстве расшифровка сломается. -->
+    <exclude domain="sharedpref" path="."/>
+</full-backup-content>

@@ -7,63 +7,32 @@ package com.eyescare
  * экраном и окружением), не связанный с дистанцией. Датчик света дешёв по батарее и не требует
  * разрешений, поэтому фича живёт рядом с мониторингом, но независимо от камерного пайплайна.
  *
- * Три механизма против назойливости:
- * 1. **Гистерезис.** «Темно» — ниже [darkLux], «светло» — выше [brightLux]. Между порогами состояние
- *    сохраняется прежним, поэтому колебания освещённости на границе не дёргают предупреждение.
- * 2. **Выдержка** [dwellMs] — предупреждаем только если темно непрерывно; случайная тень, ладонь над
- *    датчиком или проход мимо лампы ничего не запускают.
- * 3. **Пауза** [cooldownMs] между предупреждениями — если человек решил не включать свет, мы не
- *    повторяем напоминание каждую минуту. Пауза переживает и включение-выключение света, и паузу
- *    мониторинга по погасшему экрану ([reset]) — иначе в тёмной комнате каждое включение экрана
- *    приносило бы новое напоминание.
- *
- * Класс без Android-зависимостей и без часов (время подаёт вызывающий через [update]) — тестируется.
+ * Защита от назойливости (гистерезис, выдержка, пауза между напоминаниями) — в [SustainedThreshold];
+ * здесь только пороги предметной области.
  */
 class AmbientLightMonitor(
-    private val darkLux: Float = DARK_LUX,
-    private val brightLux: Float = BRIGHT_LUX,
-    private val dwellMs: Long = DWELL_MS,
-    private val cooldownMs: Long = COOLDOWN_MS,
+    darkLux: Float = DARK_LUX,
+    brightLux: Float = BRIGHT_LUX,
+    dwellMs: Long = DWELL_MS,
+    cooldownMs: Long = COOLDOWN_MS,
 ) {
-    private var isDark = false
-    private var darkSinceMs = 0L
-    private var lastWarnMs: Long? = null
+    private val condition = SustainedThreshold(
+        enterAt = darkLux,   // темно — когда света стало МЕНЬШЕ этого
+        exitAt = brightLux,  // светло — когда стало БОЛЬШЕ этого
+        dwellMs = dwellMs,
+        cooldownMs = cooldownMs,
+    )
 
     /**
      * Очередной замер освещённости. Возвращает `true` РОВНО в тот момент, когда пора показать
-     * предупреждение; в остальных случаях — `false`.
+     * предупреждение.
      *
      * @param lux текущая освещённость в люксах (значение датчика [android.hardware.Sensor.TYPE_LIGHT]).
      */
-    fun update(nowMs: Long, lux: Float): Boolean {
-        val nowDark = when {
-            lux < darkLux -> true
-            lux > brightLux -> false
-            else -> isDark // «серая» зона между порогами — держим прежнее состояние (гистерезис)
-        }
-        if (nowDark && !isDark) darkSinceMs = nowMs
-        isDark = nowDark
+    fun update(nowMs: Long, lux: Float): Boolean = condition.update(nowMs, lux)
 
-        if (!isDark) return false
-        if (nowMs - darkSinceMs < dwellMs) return false
-
-        val last = lastWarnMs
-        if (last != null && nowMs - last < cooldownMs) return false
-
-        lastWarnMs = nowMs
-        darkSinceMs = nowMs // выдержку отсчитываем заново
-        return true
-    }
-
-    /**
-     * Сбрасывает отсчёт темноты — при паузе мониторинга (экран погас) и перед новой подпиской на
-     * датчик. Пауза между предупреждениями ([cooldownMs]) СОХРАНЯЕТСЯ: она живёт столько же, сколько
-     * сервис, и не должна обнуляться каждым включением экрана.
-     */
-    fun reset() {
-        isDark = false
-        darkSinceMs = 0L
-    }
+    /** Сбрасывает отсчёт темноты при паузе мониторинга; пауза между предупреждениями сохраняется. */
+    fun reset() = condition.reset()
 
     companion object {
         /**

@@ -34,10 +34,12 @@ fun SettingsScreen(
     ignoringBatteryOptimizations: Boolean,
     breakRemindersEnabled: Boolean,
     darkRoomWarningEnabled: Boolean,
+    postureWarningEnabled: Boolean,
     onChildModeToggle: (Boolean) -> Unit,
     onThresholdSelect: (Int) -> Unit,
     onBreakRemindersToggle: (Boolean) -> Unit,
     onDarkRoomWarningToggle: (Boolean) -> Unit,
+    onPostureWarningToggle: (Boolean) -> Unit,
     onLanguageClick: () -> Unit,
     onThemeClick: () -> Unit,
     onBackgroundClick: () -> Unit,
@@ -87,6 +89,18 @@ fun SettingsScreen(
                         modifier = Modifier.weight(1f),
                     )
                     IosSwitch(checked = darkRoomWarningEnabled, onCheckedChange = onDarkRoomWarningToggle)
+                }
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
+
+                // Напоминание об осанке (наклон головы + наклон устройства)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = stringResource(R.string.label_posture_warning),
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.weight(1f),
+                    )
+                    IosSwitch(checked = postureWarningEnabled, onCheckedChange = onPostureWarningToggle)
                 }
 
                 HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))

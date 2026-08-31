@@ -35,6 +35,8 @@ class CameraAnalyzer(
     private val onStatusUpdate: (String) -> Unit,
     private val onThresholdExceeded: (Boolean) -> Unit,
     private val onIrisDistanceUpdate: (Float?) -> Unit = {},
+    /** Наклон лица относительно камеры (ML Kit euler X), `null` — лицо не найдено. Для осанки. */
+    private val onHeadPitchUpdate: (Float?) -> Unit = {},
 ) {
     private val cameraExecutor = Executors.newSingleThreadExecutor()
     private val distanceCalculator = DistanceCalculator(settingsRepository)
@@ -161,6 +163,7 @@ class CameraAnalyzer(
                                         )
                                         lastPacingDistanceCm = distance
                                         onDistanceUpdate(distance)
+                                        onHeadPitchUpdate(face.headEulerAngleX)
                                         if (distance != null) {
                                             handleDistance(distance)
                                         }
@@ -246,6 +249,7 @@ class CameraAnalyzer(
         if (BuildConfig.DEBUG) onIrisDistanceUpdate(null)
         lastPacingDistanceCm = null
         onDistanceUpdate(null)
+        onHeadPitchUpdate(null)
         // Если лицо пропало надолго, пока висел баннер «слишком близко» — снимаем его.
         overlayHysteresis.onFaceLost()?.let { onThresholdExceeded(it) }
     }

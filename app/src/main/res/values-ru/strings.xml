@@ -48,6 +48,16 @@
     <string name="dark_room_text">Яркий экран в темноте утомляет глаза — включите свет</string>
     <string name="channel_dark_room_name">Предупреждения о темноте</string>
     <string name="label_dark_room_warning">Предупреждать о темноте</string>
+    <string name="posture_title">Выпрямитесь</string>
+    <string name="posture_text">Голова давно наклонена вниз — поднимите экран на уровень глаз</string>
+    <string name="channel_posture_name">Напоминания об осанке</string>
+    <string name="label_posture_warning">Напоминать об осанке</string>
+    <string name="notif_snoozed">Мониторинг на паузе</string>
+    <string name="action_snooze_minutes">Пауза %1$d мин</string>
+    <string name="action_resume_monitoring">Возобновить</string>
+    <string name="snooze_title">Пауза мониторинга</string>
+    <string name="snooze_option_minutes">%1$d мин</string>
+    <string name="snooze_remaining">Пауза — осталось %1$d мин</string>
     <string name="stats_title">За неделю</string>
     <string name="stats_monitoring_time">Время мониторинга</string>
     <string name="stats_too_close_time">Слишком близко</string>

@@ -52,6 +52,11 @@ operate confidently outside my home stack, as an **Agentic Engineering Lead / Pr
 - **Eye-care habits** — 20-20-20 break reminders and a weekly usage summary.
 - **Dark-room warning** — the ambient-light sensor (not the camera) notices when you're staring at a
   bright screen in the dark, with hysteresis, a dwell time and a cooldown so it never nags.
+- **Posture reminder** — head tilt from ML Kit combined with device tilt from the gravity sensor
+  gives the real neck angle, so it also catches the phone-flat-on-the-desk case a face angle alone
+  would miss.
+- **Pause on demand** — snooze monitoring for 15/30/60 minutes from the app or straight from the
+  notification, for legitimate close-up viewing; the service stays alive and only releases the camera.
 - **Child mode** — a more conservative threshold for kids.
 - **Battery-aware & resilient** — dynamic frame rate, camera released when the screen is off,
   auto-off on low battery, auto-resume after reboot / OEM kills.

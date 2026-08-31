@@ -147,6 +147,19 @@ class SettingsRepository private constructor(context: Context) {
 
     fun isDarkRoomWarningEnabled(): Boolean = prefs.getBoolean(KEY_DARK_ROOM_WARNING, true)
 
+    // --- Напоминание об осанке (наклон головы) ---
+    fun setPostureWarningEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_POSTURE_WARNING, enabled).apply()
+    }
+
+    /**
+     * По умолчанию ВЫКЛЮЧЕНО, в отличие от остальных напоминаний. Расчёт наклона опирается на знак
+     * `headEulerAngleX` у ML Kit («плюс — лицо смотрит вверх»), который не проверен на устройстве;
+     * если знак окажется обратным, включённая по умолчанию фича слала бы напоминания людям с
+     * правильной посадкой. Включить по умолчанию после проверки на реальном телефоне.
+     */
+    fun isPostureWarningEnabled(): Boolean = prefs.getBoolean(KEY_POSTURE_WARNING, false)
+
     // --- Weekly usage stats (сбрасываются в начале новой недели) ---
     private fun rolloverStatsIfNeeded() {
         val current = weekIdForEpochDay(java.time.LocalDate.now().toEpochDay())
@@ -219,6 +232,7 @@ class SettingsRepository private constructor(context: Context) {
         private const val KEY_ONBOARDING_DONE = "onboarding_done"
         private const val KEY_BREAK_REMINDERS = "break_reminders"
         private const val KEY_DARK_ROOM_WARNING = "dark_room_warning"
+        private const val KEY_POSTURE_WARNING = "posture_warning"
         private const val KEY_STATS_WEEK_ID = "stats_week_id"
         private const val KEY_STATS_MONITOR_SEC = "stats_monitor_sec"
         private const val KEY_STATS_TOOCLOSE_SEC = "stats_tooclose_sec"

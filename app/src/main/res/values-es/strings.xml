@@ -48,6 +48,16 @@
     <string name="dark_room_text">Una pantalla brillante a oscuras cansa la vista: enciende una luz</string>
     <string name="channel_dark_room_name">Avisos de oscuridad</string>
     <string name="label_dark_room_warning">Aviso de oscuridad</string>
+    <string name="posture_title">Enderézate</string>
+    <string name="posture_text">Llevas rato con la cabeza inclinada hacia abajo: sube la pantalla a la altura de los ojos</string>
+    <string name="channel_posture_name">Recordatorios de postura</string>
+    <string name="label_posture_warning">Recordatorio de postura</string>
+    <string name="notif_snoozed">Supervisión en pausa</string>
+    <string name="action_snooze_minutes">Pausar %1$d min</string>
+    <string name="action_resume_monitoring">Reanudar</string>
+    <string name="snooze_title">Pausar la supervisión</string>
+    <string name="snooze_option_minutes">%1$d min</string>
+    <string name="snooze_remaining">En pausa: quedan %1$d min</string>
     <string name="stats_title">Esta semana</string>
     <string name="stats_monitoring_time">Tiempo de monitorización</string>
     <string name="stats_too_close_time">Demasiado cerca</string>

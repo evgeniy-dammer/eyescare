@@ -1,31 +1,42 @@
 package com.eyescare
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import android.os.SystemClock
+import kotlinx.coroutines.delay
 
 @Composable
 fun MonitoringScreen(
     enabled: Boolean,
     onToggle: (Boolean) -> Unit,
     weeklyStats: WeeklyStats = WeeklyStats(),
+    snoozeOptionsMinutes: List<Int> = emptyList(),
+    onSnooze: (minutes: Int) -> Unit = {},
+    onCancelSnooze: () -> Unit = {},
     contentBottomPadding: Dp = 0.dp,
 ) {
     val status by MonitoringStateHolder.state.collectAsState()
@@ -58,9 +69,97 @@ fun MonitoringScreen(
 
         if (enabled) {
             LiveDistanceCard(status)
+            SnoozeCard(
+                snoozeUntilElapsedMs = status.snoozeUntilElapsedMs,
+                optionsMinutes = snoozeOptionsMinutes,
+                onSnooze = onSnooze,
+                onCancel = onCancelSnooze,
+            )
         }
 
         WeeklyStatsCard(weeklyStats)
+    }
+}
+
+/**
+ * Пауза мониторинга на время: легитимный близкий просмотр (фото, книга) не должен вынуждать
+ * выключать приложение совсем. Пока пауза идёт, показываем остаток и кнопку возврата.
+ */
+@Composable
+private fun SnoozeCard(
+    snoozeUntilElapsedMs: Long?,
+    optionsMinutes: List<Int>,
+    onSnooze: (Int) -> Unit,
+    onCancel: () -> Unit,
+) {
+    if (optionsMinutes.isEmpty()) return
+    GlassCard(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            if (snoozeUntilElapsedMs != null) {
+                Text(
+                    text = stringResource(R.string.snooze_remaining, remainingMinutes(snoozeUntilElapsedMs)),
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                PillButton(
+                    text = stringResource(R.string.action_resume_monitoring),
+                    onClick = onCancel,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            } else {
+                Text(
+                    text = stringResource(R.string.snooze_title),
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    optionsMinutes.forEach { minutes ->
+                        PillButton(
+                            text = stringResource(R.string.snooze_option_minutes, minutes),
+                            onClick = { onSnooze(minutes) },
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Остаток паузы в минутах, округлённый вверх, — пересчитывается раз в секунду, чтобы «осталось
+ * 5 мин» не застывало на экране. Шкала та же, что у сервиса: [SystemClock.elapsedRealtime].
+ */
+@Composable
+private fun remainingMinutes(untilElapsedMs: Long): Int {
+    val remaining by produceState(initialValue = untilElapsedMs - SystemClock.elapsedRealtime(), untilElapsedMs) {
+        while (true) {
+            value = untilElapsedMs - SystemClock.elapsedRealtime()
+            delay(1000)
+        }
+    }
+    return ((remaining.coerceAtLeast(0L) + 59_999L) / 60_000L).toInt()
+}
+
+/** Кнопка-пилюля в стиле iOS: заливка акцентом низкой насыщенности, текст акцентным цветом. */
+@Composable
+private fun PillButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f))
+            .clickable(onClick = onClick)
+            .padding(vertical = 10.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.primary,
+        )
     }
 }
 

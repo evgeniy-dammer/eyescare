@@ -48,6 +48,16 @@
     <string name="dark_room_text">Uno schermo luminoso al buio affatica gli occhi: accendi una luce</string>
     <string name="channel_dark_room_name">Avvisi di buio</string>
     <string name="label_dark_room_warning">Avviso di buio</string>
+    <string name="posture_title">Raddrizzati</string>
+    <string name="posture_text">Tieni la testa piegata in basso da un po\': alza lo schermo all\'altezza degli occhi</string>
+    <string name="channel_posture_name">Promemoria sulla postura</string>
+    <string name="label_posture_warning">Promemoria sulla postura</string>
+    <string name="notif_snoozed">Monitoraggio in pausa</string>
+    <string name="action_snooze_minutes">Pausa %1$d min</string>
+    <string name="action_resume_monitoring">Riprendi</string>
+    <string name="snooze_title">Metti in pausa</string>
+    <string name="snooze_option_minutes">%1$d min</string>
+    <string name="snooze_remaining">In pausa: %1$d min rimanenti</string>
     <string name="stats_title">Questa settimana</string>
     <string name="stats_monitoring_time">Tempo di monitoraggio</string>
     <string name="stats_too_close_time">Troppo vicino</string>

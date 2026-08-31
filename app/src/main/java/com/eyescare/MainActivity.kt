@@ -100,6 +100,9 @@ class MainActivity : AppCompatActivity() {
                     onOpenAutostartSettings = ::openAutostartSettings,
                     onBreakRemindersToggle = ::onBreakRemindersToggle,
                     onDarkRoomWarningToggle = ::onDarkRoomWarningToggle,
+                    onPostureWarningToggle = ::onPostureWarningToggle,
+                    onSnooze = ::snoozeMonitoring,
+                    onCancelSnooze = ::cancelSnooze,
                     ensureConsent = ::ensureConsent,
                 )
 
@@ -163,6 +166,7 @@ class MainActivity : AppCompatActivity() {
             ignoringBatteryOptimizations = isIgnoringBatteryOptimizations(),
             breakRemindersEnabled = settingsRepository.isBreakRemindersEnabled(),
             darkRoomWarningEnabled = settingsRepository.isDarkRoomWarningEnabled(),
+            postureWarningEnabled = settingsRepository.isPostureWarningEnabled(),
             weeklyStats = settingsRepository.getWeeklyStats(),
         )
     }
@@ -250,6 +254,30 @@ class MainActivity : AppCompatActivity() {
     private fun onDarkRoomWarningToggle(enabled: Boolean) {
         settingsRepository.setDarkRoomWarningEnabled(enabled)
         refreshState()
+    }
+
+    private fun onPostureWarningToggle(enabled: Boolean) {
+        settingsRepository.setPostureWarningEnabled(enabled)
+        refreshState()
+    }
+
+    /**
+     * Пауза мониторинга на [minutes] минут. Сервис остаётся foreground и лишь отпускает камеру —
+     * останавливать его нельзя: на Android 14+ camera-сервис не поднять обратно из фона.
+     */
+    private fun snoozeMonitoring(minutes: Int) {
+        val intent = Intent(this, ForegroundMonitoringService::class.java).apply {
+            action = ForegroundMonitoringService.ACTION_SNOOZE
+            putExtra(ForegroundMonitoringService.EXTRA_SNOOZE_MINUTES, minutes)
+        }
+        ContextCompat.startForegroundService(this, intent)
+    }
+
+    private fun cancelSnooze() {
+        val intent = Intent(this, ForegroundMonitoringService::class.java).apply {
+            action = ForegroundMonitoringService.ACTION_CANCEL_SNOOZE
+        }
+        ContextCompat.startForegroundService(this, intent)
     }
 
     /**

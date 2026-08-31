@@ -48,6 +48,16 @@
     <string name="dark_room_text">Karanlıkta parlak ekran gözleri yorar — bir ışık yakın</string>
     <string name="channel_dark_room_name">Karanlık uyarıları</string>
     <string name="label_dark_room_warning">Karanlık uyarısı</string>
+    <string name="posture_title">Dikleşin</string>
+    <string name="posture_text">Başınız uzun süredir öne eğik — ekranı göz hizasına kaldırın</string>
+    <string name="channel_posture_name">Duruş hatırlatmaları</string>
+    <string name="label_posture_warning">Duruş hatırlatması</string>
+    <string name="notif_snoozed">İzleme duraklatıldı</string>
+    <string name="action_snooze_minutes">%1$d dk duraklat</string>
+    <string name="action_resume_monitoring">Sürdür</string>
+    <string name="snooze_title">İzlemeyi duraklat</string>
+    <string name="snooze_option_minutes">%1$d dk</string>
+    <string name="snooze_remaining">Duraklatıldı — %1$d dk kaldı</string>
     <string name="stats_title">Bu hafta</string>
     <string name="stats_monitoring_time">İzleme süresi</string>
     <string name="stats_too_close_time">Çok yakın</string>

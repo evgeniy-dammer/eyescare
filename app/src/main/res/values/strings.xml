@@ -53,6 +53,16 @@
     <string name="dark_room_text">A bright screen in the dark strains your eyes — turn on a light</string>
     <string name="channel_dark_room_name">Dark room warnings</string>
     <string name="label_dark_room_warning">Dark room warning</string>
+    <string name="posture_title">Straighten up</string>
+    <string name="posture_text">Your head has been tilted down for a while — raise the screen to eye level</string>
+    <string name="channel_posture_name">Posture reminders</string>
+    <string name="label_posture_warning">Posture reminder</string>
+    <string name="notif_snoozed">Monitoring paused</string>
+    <string name="action_snooze_minutes">Pause %1$d min</string>
+    <string name="action_resume_monitoring">Resume</string>
+    <string name="snooze_title">Pause monitoring</string>
+    <string name="snooze_option_minutes">%1$d min</string>
+    <string name="snooze_remaining">Paused — %1$d min left</string>
     <string name="stats_title">This week</string>
     <string name="stats_monitoring_time">Monitoring time</string>
     <string name="stats_too_close_time">Too close</string>

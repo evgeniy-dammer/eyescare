@@ -65,6 +65,7 @@ data class MainUiState(
     val ignoringBatteryOptimizations: Boolean = false, // true = приложению не мешает оптимизация батареи
     val breakRemindersEnabled: Boolean = true,
     val darkRoomWarningEnabled: Boolean = true,
+    val postureWarningEnabled: Boolean = false,
     val weeklyStats: WeeklyStats = WeeklyStats(),
 )
 
@@ -136,6 +137,9 @@ fun AppScaffold(
     onOpenAutostartSettings: () -> Unit,
     onBreakRemindersToggle: (Boolean) -> Unit,
     onDarkRoomWarningToggle: (Boolean) -> Unit,
+    onPostureWarningToggle: (Boolean) -> Unit,
+    onSnooze: (minutes: Int) -> Unit,
+    onCancelSnooze: () -> Unit,
     ensureConsent: (onGranted: () -> Unit, onDenied: () -> Unit) -> Unit,
 ) {
     val navController = rememberNavController()
@@ -165,6 +169,9 @@ fun AppScaffold(
                         enabled = mainState.monitoringEnabled,
                         onToggle = onMonitoringToggle,
                         weeklyStats = mainState.weeklyStats,
+                        snoozeOptionsMinutes = ForegroundMonitoringService.SNOOZE_OPTIONS_MINUTES,
+                        onSnooze = onSnooze,
+                        onCancelSnooze = onCancelSnooze,
                         contentBottomPadding = contentBottomPadding,
                     )
                 }
@@ -192,11 +199,13 @@ fun AppScaffold(
                         ignoringBatteryOptimizations = mainState.ignoringBatteryOptimizations,
                         breakRemindersEnabled = mainState.breakRemindersEnabled,
                         darkRoomWarningEnabled = mainState.darkRoomWarningEnabled,
+                        postureWarningEnabled = mainState.postureWarningEnabled,
                         contentBottomPadding = contentBottomPadding,
                         onChildModeToggle = onChildModeToggle,
                         onThresholdSelect = onThresholdSelect,
                         onBreakRemindersToggle = onBreakRemindersToggle,
                         onDarkRoomWarningToggle = onDarkRoomWarningToggle,
+                        onPostureWarningToggle = onPostureWarningToggle,
                         onLanguageClick = { navController.navigate(ROUTE_LANGUAGE) },
                         onThemeClick = { navController.navigate(ROUTE_THEME) },
                         onBackgroundClick = { navController.navigate(ROUTE_BACKGROUND) },

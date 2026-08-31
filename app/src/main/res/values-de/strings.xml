@@ -48,6 +48,16 @@
     <string name="dark_room_text">Ein heller Bildschirm im Dunkeln ermüdet die Augen — schalten Sie Licht ein</string>
     <string name="channel_dark_room_name">Warnungen bei Dunkelheit</string>
     <string name="label_dark_room_warning">Warnung bei Dunkelheit</string>
+    <string name="posture_title">Richten Sie sich auf</string>
+    <string name="posture_text">Ihr Kopf ist seit Längerem nach unten geneigt — heben Sie den Bildschirm auf Augenhöhe</string>
+    <string name="channel_posture_name">Haltungserinnerungen</string>
+    <string name="label_posture_warning">Haltungserinnerung</string>
+    <string name="notif_snoozed">Überwachung pausiert</string>
+    <string name="action_snooze_minutes">%1$d Min. pausieren</string>
+    <string name="action_resume_monitoring">Fortsetzen</string>
+    <string name="snooze_title">Überwachung pausieren</string>
+    <string name="snooze_option_minutes">%1$d Min.</string>
+    <string name="snooze_remaining">Pausiert — noch %1$d Min.</string>
     <string name="stats_title">Diese Woche</string>
     <string name="stats_monitoring_time">Überwachungszeit</string>
     <string name="stats_too_close_time">Zu nah</string>

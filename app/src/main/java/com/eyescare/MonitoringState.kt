@@ -12,6 +12,8 @@ data class MonitoringStatus(
     val tooClose: Boolean = false,
     // Прототип (только debug): дистанция по диаметру радужки (MediaPipe) для сравнения с IPD-методом.
     val irisDistanceCm: Float? = null,
+    /** Момент окончания снуза в шкале [android.os.SystemClock.elapsedRealtime]; `null` — снуза нет. */
+    val snoozeUntilElapsedMs: Long? = null,
 )
 
 /**
@@ -26,6 +28,7 @@ object MonitoringStateHolder {
     fun setDistance(distanceCm: Float?) = _state.update { it.copy(distanceCm = distanceCm) }
     fun setTooClose(tooClose: Boolean) = _state.update { it.copy(tooClose = tooClose) }
     fun setIrisDistance(distanceCm: Float?) = _state.update { it.copy(irisDistanceCm = distanceCm) }
+    fun setSnoozeUntil(untilElapsedMs: Long?) = _state.update { it.copy(snoozeUntilElapsedMs = untilElapsedMs) }
 
     /** Сбрасывает состояние при остановке сервиса. */
     fun reset() {

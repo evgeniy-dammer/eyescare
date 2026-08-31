@@ -25,32 +25,50 @@ class ForegroundMonitoringService : LifecycleService() {
     private var lastKnownDistance: Float? = null
     private var isThresholdExceeded = false
     private var lastNotificationUpdateMs = 0L
-    private var pausedForScreenOff = false
+
+    // Причины паузы накладываются (экран + снуз), поэтому это отдельный объект, а не пара флагов.
+    private val pause = MonitoringPause()
 
     private val handler = Handler(Looper.getMainLooper())
     private val breakReminder = BreakReminder()
     private val stats = StatsAccumulator()
 
-    // Предупреждение о тёмной комнате: датчик освещённости, независимый от камерного пайплайна.
-    // На части устройств датчика нет — тогда lightSensor == null и фича просто молчит.
+    // Датчики, не связанные с камерой: освещённость (тёмная комната) и гравитация (наклон
+    // устройства для осанки). На части устройств датчика может не быть — тогда getDefaultSensor
+    // вернёт null и соответствующая фича просто молчит.
     private val sensorManager by lazy { getSystemService(SENSOR_SERVICE) as? SensorManager }
     private val lightSensor: Sensor? by lazy { sensorManager?.getDefaultSensor(Sensor.TYPE_LIGHT) }
-    private val ambientLight = AmbientLightMonitor()
-    private var lightListenerRegistered = false
 
-    private val lightListener = object : SensorEventListener {
+    /** TYPE_GRAVITY — фьюженный и уже отфильтрованный; где его нет, берём сырой акселерометр:
+     *  у неподвижного в руке телефона он практически и есть вектор гравитации. */
+    private val gravitySensor: Sensor? by lazy {
+        sensorManager?.getDefaultSensor(Sensor.TYPE_GRAVITY)
+            ?: sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+    }
+
+    private val ambientLight = AmbientLightMonitor()
+    private val posture = PostureMonitor()
+
+    /** Наклон устройства от вертикали; null — данных от датчика ещё не было. */
+    private var deviceTiltDeg: Float? = null
+    private var sensorsRegistered = false
+
+    private val sensorListener = object : SensorEventListener {
         override fun onSensorChanged(event: SensorEvent) {
-            // Настройку проверяем здесь, а не при подписке: тумблер можно переключить, пока сервис
-            // уже работает, и переподписываться на каждое изменение настроек не хочется.
-            if (!settingsRepository.isDarkRoomWarningEnabled()) return
-            val lux = event.values.firstOrNull() ?: return
-            if (ambientLight.update(SystemClock.elapsedRealtime(), lux)) {
-                notifications.showDarkRoom()
+            when (event.sensor.type) {
+                Sensor.TYPE_LIGHT -> onLuxSample(event.values.firstOrNull() ?: return)
+                Sensor.TYPE_GRAVITY, Sensor.TYPE_ACCELEROMETER -> {
+                    if (event.values.size < 3) return
+                    deviceTiltDeg = PostureMath.deviceTiltFromVerticalDeg(event.values[1], event.values[2])
+                }
             }
         }
 
         override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit
     }
+
+    /** Снуз закончился — поднимаем камеру (если экран к этому моменту не погас). */
+    private val snoozeExpiryRunnable = Runnable { expireSnooze() }
     private val statsFlushRunnable = object : Runnable {
         override fun run() {
             flushStats(keepCounting = true)
@@ -60,6 +78,15 @@ class ForegroundMonitoringService : LifecycleService() {
 
     companion object {
         const val ACTION_STOP_SERVICE = "com.eyescare.ACTION_STOP_SERVICE"
+        const val ACTION_SNOOZE = "com.eyescare.ACTION_SNOOZE"
+        const val ACTION_CANCEL_SNOOZE = "com.eyescare.ACTION_CANCEL_SNOOZE"
+        const val EXTRA_SNOOZE_MINUTES = "snooze_minutes"
+
+        /** Варианты паузы в минутах, предлагаемые на экране мониторинга. */
+        val SNOOZE_OPTIONS_MINUTES = listOf(15, 30, 60)
+
+        /** Длительность паузы для кнопки в уведомлении (там выбирать не из чего). */
+        const val DEFAULT_SNOOZE_MINUTES = 15
         // Троттлинг перестроения уведомления: дистанция приходит часто, обновлять уведомление
         // так же часто нет смысла (нагрузка/батарея).
         private const val NOTIFICATION_UPDATE_INTERVAL_MS = 1000L
@@ -84,8 +111,15 @@ class ForegroundMonitoringService : LifecycleService() {
     private val screenReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
-                Intent.ACTION_SCREEN_OFF -> pauseForScreenOff()
-                Intent.ACTION_SCREEN_ON -> resumeAfterScreenOn()
+                Intent.ACTION_SCREEN_OFF -> pauseMonitoring(PauseReason.SCREEN_OFF)
+                Intent.ACTION_SCREEN_ON -> {
+                    // Снуз мог истечь, пока устройство спало: Handler.postDelayed отсчитывает
+                    // uptime и в deep sleep стоит, а elapsedRealtime идёт. Поэтому сначала
+                    // снимаем просроченный снуз, иначе он держал бы камеру до срабатывания
+                    // таймера уже после пробуждения.
+                    expireSnooze()
+                    resumeMonitoring(PauseReason.SCREEN_OFF)
+                }
             }
         }
     }
@@ -115,7 +149,10 @@ class ForegroundMonitoringService : LifecycleService() {
             onThresholdExceeded = { isExceeded ->
                 MonitoringStateHolder.setTooClose(isExceeded)
                 handleThresholdExceeded(isExceeded)
-            }
+            },
+            // Осанка: угол лица относительно камеры; вместе с наклоном устройства даёт наклон
+            // головы от вертикали (см. PostureMath).
+            onHeadPitchUpdate = ::onHeadPitchSample,
         )
         registerReceiver(batteryLowReceiver, IntentFilter(Intent.ACTION_BATTERY_LOW))
         registerReceiver(
@@ -136,6 +173,21 @@ class ForegroundMonitoringService : LifecycleService() {
             return START_NOT_STICKY
         }
 
+        // Снуз приходит и из UI, и из кнопки в уведомлении. startForegroundService() здесь
+        // обязателен и идемпотентен: если система создала сервис ради этого интента, мы всё равно
+        // должны вывести его в foreground, иначе Android убьёт процесс за нарушение контракта.
+        if (intent?.action == ACTION_SNOOZE) {
+            startForegroundService()
+            val minutes = intent.getIntExtra(EXTRA_SNOOZE_MINUTES, DEFAULT_SNOOZE_MINUTES)
+            startSnooze(minutes * 60_000L)
+            return START_NOT_STICKY
+        }
+        if (intent?.action == ACTION_CANCEL_SNOOZE) {
+            startForegroundService()
+            cancelSnooze()
+            return START_NOT_STICKY
+        }
+
         startForegroundService()
 
         // Если заряд уже низкий и устройство не заряжается — не запускаем мониторинг.
@@ -144,8 +196,16 @@ class ForegroundMonitoringService : LifecycleService() {
             return START_NOT_STICKY
         }
 
+        // Явный запуск — это решение пользователя включить мониторинг: снимаем снуз, если он
+        // почему-то остался от предыдущего цикла, чтобы камера и состояние паузы не разъехались.
+        handler.removeCallbacks(snoozeExpiryRunnable)
+        if (pause.isSnoozed) {
+            pause.resume(PauseReason.SNOOZE)
+            MonitoringStateHolder.setSnoozeUntil(null)
+        }
+
         cameraAnalyzer.start()
-        startLightMonitoring()
+        startSensors()
         MonitoringStateHolder.setRunning(true)
         stats.startMonitoring(SystemClock.elapsedRealtime())
         handler.postDelayed(statsFlushRunnable, STATS_FLUSH_INTERVAL_MS)
@@ -159,7 +219,8 @@ class ForegroundMonitoringService : LifecycleService() {
         super.onDestroy()
         flushStats(keepCounting = false)
         handler.removeCallbacks(statsFlushRunnable)
-        stopLightMonitoring()
+        handler.removeCallbacks(snoozeExpiryRunnable)
+        stopSensors()
         cameraAnalyzer.shutdown()
         overlayManager.hideOverlay()
         notifications.cancelWarning()
@@ -173,13 +234,25 @@ class ForegroundMonitoringService : LifecycleService() {
         MonitoringStateHolder.reset()
     }
 
-    /** Экран погас: освобождаем камеру (мониторить нечего) и убираем оверлей/«живое» состояние. */
-    private fun pauseForScreenOff() {
-        if (pausedForScreenOff) return
-        pausedForScreenOff = true
+    /**
+     * Ставит мониторинг на паузу по указанной причине. Причины накладываются: если мониторинг уже
+     * стоял (например, по снузу), второе основание камеру повторно не трогает — см. [MonitoringPause].
+     */
+    private fun pauseMonitoring(reason: PauseReason) {
+        if (pause.pause(reason)) releaseCamera()
+    }
+
+    /** Снимает причину паузы; камера поднимается, только когда не осталось ни одной. */
+    private fun resumeMonitoring(reason: PauseReason) {
+        if (pause.resume(reason)) acquireCamera()
+    }
+
+    /** Собственно освобождение камеры и датчиков (и всего, что зависит от «живых» данных). */
+    private fun releaseCamera() {
         flushStats(keepCounting = false) // закрываем текущие отрезки статистики
-        breakReminder.reset() // выключенный экран = перерыв
-        stopLightMonitoring() // на погашенный экран смотреть не на что — и датчик не нужен
+        breakReminder.reset() // пауза = перерыв
+        posture.reset()
+        stopSensors()
         cameraAnalyzer.stop()
         isThresholdExceeded = false
         overlayManager.hideOverlay()
@@ -187,32 +260,89 @@ class ForegroundMonitoringService : LifecycleService() {
         MonitoringStateHolder.setDistance(null)
     }
 
-    /** Экран включился: снова поднимаем камеру. Сервис уже foreground, так что это легально. */
-    private fun resumeAfterScreenOn() {
-        if (!pausedForScreenOff) return
-        pausedForScreenOff = false
+    /** Возврат к работе. Сервис всё это время оставался foreground, так что поднять камеру легально. */
+    private fun acquireCamera() {
         cameraAnalyzer.start()
-        startLightMonitoring()
+        startSensors()
         stats.startMonitoring(SystemClock.elapsedRealtime())
     }
 
-    /**
-     * Подписывается на датчик освещённости. `SENSOR_DELAY_NORMAL` (~200 мс) — с запасом: решение
-     * принимается по выдержке в десятки секунд, а датчик света на большинстве устройств отдаёт
-     * значения по изменению и почти не расходует батарею.
-     */
-    private fun startLightMonitoring() {
-        val sensor = lightSensor ?: return
-        if (lightListenerRegistered) return
-        ambientLight.reset()
-        lightListenerRegistered =
-            sensorManager?.registerListener(lightListener, sensor, SensorManager.SENSOR_DELAY_NORMAL) == true
+    /** Пауза мониторинга на заданное время; повторный вызов продлевает её. */
+    private fun startSnooze(durationMs: Long) {
+        if (pause.snooze(SystemClock.elapsedRealtime(), durationMs)) releaseCamera()
+        handler.removeCallbacks(snoozeExpiryRunnable)
+        handler.postDelayed(snoozeExpiryRunnable, durationMs)
+        MonitoringStateHolder.setSnoozeUntil(pause.snoozeUntilMs())
+        updateNotification(null, force = true)
     }
 
-    private fun stopLightMonitoring() {
-        if (!lightListenerRegistered) return
-        sensorManager?.unregisterListener(lightListener)
-        lightListenerRegistered = false
+    /** Пользователь снял паузу вручную. */
+    private fun cancelSnooze() {
+        handler.removeCallbacks(snoozeExpiryRunnable)
+        resumeMonitoring(PauseReason.SNOOZE)
+        MonitoringStateHolder.setSnoozeUntil(null)
+        updateNotification(null, force = true)
+    }
+
+    /** Сработал таймер снуза. Если экран к этому моменту погас, камера останется отпущенной. */
+    private fun expireSnooze() {
+        if (pause.expireSnoozeIfDue(SystemClock.elapsedRealtime())) acquireCamera()
+        MonitoringStateHolder.setSnoozeUntil(pause.snoozeUntilMs())
+        updateNotification(null, force = true)
+    }
+
+    /**
+     * Подписывается на датчики освещённости и гравитации. `SENSOR_DELAY_NORMAL` (~200 мс) —
+     * с запасом: решения принимаются по выдержке в десятки секунд, а эти датчики почти не
+     * расходуют батарею.
+     */
+    private fun startSensors() {
+        if (sensorsRegistered) return
+        val sm = sensorManager ?: return
+        ambientLight.reset()
+        posture.reset()
+        var any = false
+        lightSensor?.let { any = sm.registerListener(sensorListener, it, SensorManager.SENSOR_DELAY_NORMAL) || any }
+        gravitySensor?.let { any = sm.registerListener(sensorListener, it, SensorManager.SENSOR_DELAY_NORMAL) || any }
+        sensorsRegistered = any
+    }
+
+    private fun stopSensors() {
+        if (!sensorsRegistered) return
+        sensorManager?.unregisterListener(sensorListener)
+        sensorsRegistered = false
+        deviceTiltDeg = null
+    }
+
+    /** Освещённость: предупреждение о тёмной комнате. */
+    private fun onLuxSample(lux: Float) {
+        // Настройки проверяем в момент замера, а не при подписке: тумблер можно переключить, пока
+        // сервис уже работает, и переподписываться на каждое изменение настроек не хочется.
+        if (!settingsRepository.isDarkRoomWarningEnabled()) return
+        if (ambientLight.update(SystemClock.elapsedRealtime(), lux)) {
+            notifications.showDarkRoom()
+        }
+    }
+
+    /**
+     * Осанка: наклон лица относительно камеры приходит с кадрами ML Kit, наклон устройства — от
+     * датчика гравитации. Пока нет одного из двух (лицо ушло из кадра, датчика нет), отсчёт
+     * выдержки сбрасывается — предупреждать не по чему.
+     */
+    private fun onHeadPitchSample(headEulerXDeg: Float?) {
+        if (!settingsRepository.isPostureWarningEnabled()) {
+            posture.reset()
+            return
+        }
+        val tilt = deviceTiltDeg
+        if (headEulerXDeg == null || tilt == null) {
+            posture.reset()
+            return
+        }
+        val flexion = PostureMath.neckFlexionDeg(tilt, headEulerXDeg)
+        if (posture.update(SystemClock.elapsedRealtime(), flexion)) {
+            notifications.showPosture()
+        }
     }
 
     /** Останавливает мониторинг из-за низкого заряда и уведомляет пользователя. */
@@ -277,25 +407,27 @@ class ForegroundMonitoringService : LifecycleService() {
         }
     }
 
-    private fun updateNotification(status: String?) {
+    /**
+     * @param force показать немедленно, минуя троттлинг — для смены состояния (снуз включён/снят),
+     *        которую нельзя проглотить только потому, что секунду назад обновлялась дистанция.
+     */
+    private fun updateNotification(status: String?, force: Boolean = false) {
         if (!notifications.hasPermission()) return
 
         // Обновления по дистанции (status == null) троттлим; статусные сообщения показываем сразу.
-        if (status == null) {
+        if (status == null && !force) {
             val now = SystemClock.elapsedRealtime()
             if (now - lastNotificationUpdateMs < NOTIFICATION_UPDATE_INTERVAL_MS) return
             lastNotificationUpdateMs = now
         }
 
-        val contentText = status ?: run {
-            val distance = lastKnownDistance
-            if (distance != null) {
-                getString(R.string.notif_distance, distance)
-            } else {
-                getString(R.string.notif_face_not_found)
-            }
+        val contentText = status ?: when {
+            // Во время паузы дистанции нет, и «лицо не найдено» ввело бы в заблуждение.
+            pause.isSnoozed -> getString(R.string.notif_snoozed)
+            lastKnownDistance != null -> getString(R.string.notif_distance, lastKnownDistance)
+            else -> getString(R.string.notif_face_not_found)
         }
-        notifications.updateForeground(contentText)
+        notifications.updateForeground(contentText, snoozed = pause.isSnoozed)
     }
 
     private fun startForegroundService() {

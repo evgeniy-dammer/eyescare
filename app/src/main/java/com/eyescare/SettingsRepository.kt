@@ -1,3 +1,9 @@
+// EncryptedSharedPreferences/MasterKey помечены @Deprecated в security-crypto 1.1.0: AndroidX закрыл
+// Jetpack Security и рекомендует обычные SharedPreferences (данные и так защищены file-based
+// encryption устройства). API остаётся рабочим и стабильным; отказ от прикладного шифрования —
+// продуктовое решение, затрагивающее README и privacy policy, и пока не принято.
+@file:Suppress("DEPRECATION")
+
 package com.eyescare
 
 import android.content.Context

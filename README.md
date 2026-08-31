@@ -72,7 +72,7 @@ operate confidently outside my home stack, as an **Agentic Engineering Lead / Pr
 - **CameraX** + **ML Kit Face Detection**; **MediaPipe Tasks Vision** (accuracy prototype).
 - Foreground service, WorkManager, `EncryptedSharedPreferences`.
 - Unit tests (pure logic isolated from Android) + instrumented Compose tests.
-- `compileSdk`/`targetSdk` 36, `minSdk` 26.
+- `compileSdk` 37, `targetSdk` 36, `minSdk` 26.
 
 ## Build & run
 

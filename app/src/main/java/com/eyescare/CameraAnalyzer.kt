@@ -14,7 +14,6 @@ import android.view.OrientationEventListener
 import android.view.Surface
 import android.hardware.camera2.CaptureRequest
 import androidx.camera.camera2.interop.Camera2Interop
-import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.resolutionselector.ResolutionSelector
@@ -86,7 +85,6 @@ class CameraAnalyzer(
         get() = settingsRepository.getDistanceThreshold()
 
     @SuppressLint("UnsafeOptInUsageError")
-    @OptIn(ExperimentalCamera2Interop::class)
     fun start() {
         active = true
         orientationEventListener.enable()

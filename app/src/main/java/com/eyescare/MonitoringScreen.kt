@@ -15,11 +15,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import java.util.Locale
 
 @Composable
 fun MonitoringScreen(
@@ -112,6 +112,9 @@ private fun formatDuration(seconds: Long): String {
  */
 @Composable
 private fun IrisComparison(ipdCm: Float?, irisCm: Float?) {
+    // Локаль берём из LocalLocale: java.util.Locale в composable не является observable-состоянием
+    // и UI не пересобирается при смене языка (у приложения есть свой выбор языка, per-app locales).
+    val locale = LocalLocale.current.platformLocale
     Column(
         modifier = Modifier.padding(top = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -123,17 +126,17 @@ private fun IrisComparison(ipdCm: Float?, irisCm: Float?) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Text(
-            text = "IPD (ML Kit): " + (ipdCm?.let { String.format(Locale.getDefault(), "%.1f см", it) } ?: "—"),
+            text = "IPD (ML Kit): " + (ipdCm?.let { String.format(locale, "%.1f см", it) } ?: "—"),
             style = MaterialTheme.typography.bodyMedium,
         )
         Text(
-            text = "Радужка (MediaPipe): " + (irisCm?.let { String.format(Locale.getDefault(), "%.1f см", it) } ?: "—"),
+            text = "Радужка (MediaPipe): " + (irisCm?.let { String.format(locale, "%.1f см", it) } ?: "—"),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.primary,
         )
         if (ipdCm != null && irisCm != null) {
             Text(
-                text = String.format(Locale.getDefault(), "Δ = %.1f см", irisCm - ipdCm),
+                text = String.format(locale, "Δ = %.1f см", irisCm - ipdCm),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -143,6 +146,7 @@ private fun IrisComparison(ipdCm: Float?, irisCm: Float?) {
 
 @Composable
 private fun LiveDistanceCard(status: MonitoringStatus) {
+    val locale = LocalLocale.current.platformLocale
     GlassCard(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier
@@ -160,7 +164,7 @@ private fun LiveDistanceCard(status: MonitoringStatus) {
                 }
                 Row(verticalAlignment = Alignment.Bottom) {
                     Text(
-                        text = String.format(Locale.getDefault(), "%.1f", distance),
+                        text = String.format(locale, "%.1f", distance),
                         style = MaterialTheme.typography.displayLarge,
                         color = valueColor,
                     )

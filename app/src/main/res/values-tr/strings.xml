@@ -44,6 +44,10 @@
     <string name="break_text">Yaklaşık 20 saniye ~6 m uzağa bakın</string>
     <string name="channel_break_name">Mola hatırlatıcıları</string>
     <string name="label_break_reminders">Mola hatırlatıcıları (20-20-20)</string>
+    <string name="dark_room_title">Oda çok karanlık</string>
+    <string name="dark_room_text">Karanlıkta parlak ekran gözleri yorar — bir ışık yakın</string>
+    <string name="channel_dark_room_name">Karanlık uyarıları</string>
+    <string name="label_dark_room_warning">Karanlık uyarısı</string>
     <string name="stats_title">Bu hafta</string>
     <string name="stats_monitoring_time">İzleme süresi</string>
     <string name="stats_too_close_time">Çok yakın</string>

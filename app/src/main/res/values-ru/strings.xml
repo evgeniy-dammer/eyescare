@@ -44,6 +44,10 @@
     <string name="break_text">Посмотрите вдаль (~6 м) около 20 секунд</string>
     <string name="channel_break_name">Напоминания о перерывах</string>
     <string name="label_break_reminders">Напоминания о перерывах (20-20-20)</string>
+    <string name="dark_room_title">В комнате слишком темно</string>
+    <string name="dark_room_text">Яркий экран в темноте утомляет глаза — включите свет</string>
+    <string name="channel_dark_room_name">Предупреждения о темноте</string>
+    <string name="label_dark_room_warning">Предупреждать о темноте</string>
     <string name="stats_title">За неделю</string>
     <string name="stats_monitoring_time">Время мониторинга</string>
     <string name="stats_too_close_time">Слишком близко</string>

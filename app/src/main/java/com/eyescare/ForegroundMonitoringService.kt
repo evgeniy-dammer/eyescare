@@ -5,6 +5,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.os.BatteryManager
 import android.os.Handler
 import android.os.Looper
@@ -26,6 +30,27 @@ class ForegroundMonitoringService : LifecycleService() {
     private val handler = Handler(Looper.getMainLooper())
     private val breakReminder = BreakReminder()
     private val stats = StatsAccumulator()
+
+    // Предупреждение о тёмной комнате: датчик освещённости, независимый от камерного пайплайна.
+    // На части устройств датчика нет — тогда lightSensor == null и фича просто молчит.
+    private val sensorManager by lazy { getSystemService(SENSOR_SERVICE) as? SensorManager }
+    private val lightSensor: Sensor? by lazy { sensorManager?.getDefaultSensor(Sensor.TYPE_LIGHT) }
+    private val ambientLight = AmbientLightMonitor()
+    private var lightListenerRegistered = false
+
+    private val lightListener = object : SensorEventListener {
+        override fun onSensorChanged(event: SensorEvent) {
+            // Настройку проверяем здесь, а не при подписке: тумблер можно переключить, пока сервис
+            // уже работает, и переподписываться на каждое изменение настроек не хочется.
+            if (!settingsRepository.isDarkRoomWarningEnabled()) return
+            val lux = event.values.firstOrNull() ?: return
+            if (ambientLight.update(SystemClock.elapsedRealtime(), lux)) {
+                notifications.showDarkRoom()
+            }
+        }
+
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit
+    }
     private val statsFlushRunnable = object : Runnable {
         override fun run() {
             flushStats(keepCounting = true)
@@ -120,6 +145,7 @@ class ForegroundMonitoringService : LifecycleService() {
         }
 
         cameraAnalyzer.start()
+        startLightMonitoring()
         MonitoringStateHolder.setRunning(true)
         stats.startMonitoring(SystemClock.elapsedRealtime())
         handler.postDelayed(statsFlushRunnable, STATS_FLUSH_INTERVAL_MS)
@@ -133,6 +159,7 @@ class ForegroundMonitoringService : LifecycleService() {
         super.onDestroy()
         flushStats(keepCounting = false)
         handler.removeCallbacks(statsFlushRunnable)
+        stopLightMonitoring()
         cameraAnalyzer.shutdown()
         overlayManager.hideOverlay()
         notifications.cancelWarning()
@@ -152,6 +179,7 @@ class ForegroundMonitoringService : LifecycleService() {
         pausedForScreenOff = true
         flushStats(keepCounting = false) // закрываем текущие отрезки статистики
         breakReminder.reset() // выключенный экран = перерыв
+        stopLightMonitoring() // на погашенный экран смотреть не на что — и датчик не нужен
         cameraAnalyzer.stop()
         isThresholdExceeded = false
         overlayManager.hideOverlay()
@@ -164,7 +192,27 @@ class ForegroundMonitoringService : LifecycleService() {
         if (!pausedForScreenOff) return
         pausedForScreenOff = false
         cameraAnalyzer.start()
+        startLightMonitoring()
         stats.startMonitoring(SystemClock.elapsedRealtime())
+    }
+
+    /**
+     * Подписывается на датчик освещённости. `SENSOR_DELAY_NORMAL` (~200 мс) — с запасом: решение
+     * принимается по выдержке в десятки секунд, а датчик света на большинстве устройств отдаёт
+     * значения по изменению и почти не расходует батарею.
+     */
+    private fun startLightMonitoring() {
+        val sensor = lightSensor ?: return
+        if (lightListenerRegistered) return
+        ambientLight.reset()
+        lightListenerRegistered =
+            sensorManager?.registerListener(lightListener, sensor, SensorManager.SENSOR_DELAY_NORMAL) == true
+    }
+
+    private fun stopLightMonitoring() {
+        if (!lightListenerRegistered) return
+        sensorManager?.unregisterListener(lightListener)
+        lightListenerRegistered = false
     }
 
     /** Останавливает мониторинг из-за низкого заряда и уведомляет пользователя. */

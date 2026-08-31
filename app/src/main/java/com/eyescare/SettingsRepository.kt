@@ -140,6 +140,13 @@ class SettingsRepository private constructor(context: Context) {
 
     fun isBreakRemindersEnabled(): Boolean = prefs.getBoolean(KEY_BREAK_REMINDERS, true)
 
+    // --- Предупреждение о тёмной комнате (датчик освещённости) ---
+    fun setDarkRoomWarningEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_DARK_ROOM_WARNING, enabled).apply()
+    }
+
+    fun isDarkRoomWarningEnabled(): Boolean = prefs.getBoolean(KEY_DARK_ROOM_WARNING, true)
+
     // --- Weekly usage stats (сбрасываются в начале новой недели) ---
     private fun rolloverStatsIfNeeded() {
         val current = weekIdForEpochDay(java.time.LocalDate.now().toEpochDay())
@@ -211,6 +218,7 @@ class SettingsRepository private constructor(context: Context) {
 
         private const val KEY_ONBOARDING_DONE = "onboarding_done"
         private const val KEY_BREAK_REMINDERS = "break_reminders"
+        private const val KEY_DARK_ROOM_WARNING = "dark_room_warning"
         private const val KEY_STATS_WEEK_ID = "stats_week_id"
         private const val KEY_STATS_MONITOR_SEC = "stats_monitor_sec"
         private const val KEY_STATS_TOOCLOSE_SEC = "stats_tooclose_sec"

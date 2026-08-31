@@ -44,6 +44,10 @@
     <string name="break_text">Schauen Sie etwa 20 Sekunden auf etwas ~6 m Entferntes</string>
     <string name="channel_break_name">Pausenerinnerungen</string>
     <string name="label_break_reminders">Pausenerinnerungen (20-20-20)</string>
+    <string name="dark_room_title">Der Raum ist zu dunkel</string>
+    <string name="dark_room_text">Ein heller Bildschirm im Dunkeln ermüdet die Augen — schalten Sie Licht ein</string>
+    <string name="channel_dark_room_name">Warnungen bei Dunkelheit</string>
+    <string name="label_dark_room_warning">Warnung bei Dunkelheit</string>
     <string name="stats_title">Diese Woche</string>
     <string name="stats_monitoring_time">Überwachungszeit</string>
     <string name="stats_too_close_time">Zu nah</string>

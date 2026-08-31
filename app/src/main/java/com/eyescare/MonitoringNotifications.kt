@@ -16,8 +16,8 @@ import androidx.core.content.ContextCompat
 
 /**
  * Отвечает за уведомления мониторинга: каналы, постоянное foreground-уведомление, предупреждение
- * «слишком близко», низкий заряд и напоминание о перерыве. Вынесено из [ForegroundMonitoringService],
- * чтобы отделить транспорт (уведомления) от логики сервиса.
+ * «слишком близко», низкий заряд, напоминание о перерыве и предупреждение о тёмной комнате.
+ * Вынесено из [ForegroundMonitoringService], чтобы отделить транспорт (уведомления) от логики сервиса.
  */
 // Каждый notify() вызывается только после проверки hasPermission(); lint не отслеживает наш гейт.
 @SuppressLint("MissingPermission")
@@ -49,6 +49,11 @@ class MonitoringNotifications(private val context: Context) {
         )
         nm.createNotificationChannel(
             NotificationChannel(RESUME_CHANNEL_ID, context.getString(R.string.channel_resume_name), NotificationManager.IMPORTANCE_DEFAULT),
+        )
+        // Отдельный канал (а не общий с перерывами), чтобы предупреждения о темноте можно было
+        // приглушить в системных настройках, не трогая остальные уведомления.
+        nm.createNotificationChannel(
+            NotificationChannel(DARK_ROOM_CHANNEL_ID, context.getString(R.string.channel_dark_room_name), NotificationManager.IMPORTANCE_DEFAULT),
         )
     }
 
@@ -111,6 +116,19 @@ class MonitoringNotifications(private val context: Context) {
         manager.notify(BREAK_ID, n)
     }
 
+    /** Мягкое напоминание «в комнате слишком темно» (датчик освещённости, см. [AmbientLightMonitor]). */
+    fun showDarkRoom() {
+        if (!hasPermission()) return
+        val n = NotificationCompat.Builder(context, DARK_ROOM_CHANNEL_ID)
+            .setContentTitle(context.getString(R.string.dark_room_title))
+            .setContentText(context.getString(R.string.dark_room_text))
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
+            .build()
+        manager.notify(DARK_ROOM_ID, n)
+    }
+
     /** Напоминание «возобновить мониторинг» — тап открывает приложение (после перезагрузки/выгрузки OEM). */
     fun showResume() {
         if (!hasPermission()) return
@@ -137,11 +155,13 @@ class MonitoringNotifications(private val context: Context) {
         private const val RESUME_ID = 3
         private const val LOW_BATTERY_ID = 4
         private const val BREAK_ID = 5
+        private const val DARK_ROOM_ID = 6
 
         private const val CHANNEL_ID = "monitoring_service"
         private const val WARNING_CHANNEL_ID = "warning_service"
         private const val BREAK_CHANNEL_ID = "break_reminder"
         private const val RESUME_CHANNEL_ID = "resume_prompt"
+        private const val DARK_ROOM_CHANNEL_ID = "dark_room_warning"
 
         private val VIBRATION_PATTERN = longArrayOf(0, 500, 200, 500)
     }

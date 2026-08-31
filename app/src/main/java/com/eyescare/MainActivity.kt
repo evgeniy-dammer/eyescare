@@ -99,6 +99,7 @@ class MainActivity : AppCompatActivity() {
                     onRequestBatteryExemption = ::requestBatteryExemption,
                     onOpenAutostartSettings = ::openAutostartSettings,
                     onBreakRemindersToggle = ::onBreakRemindersToggle,
+                    onDarkRoomWarningToggle = ::onDarkRoomWarningToggle,
                     ensureConsent = ::ensureConsent,
                 )
 
@@ -161,6 +162,7 @@ class MainActivity : AppCompatActivity() {
             themeMode = settingsRepository.getThemeMode(),
             ignoringBatteryOptimizations = isIgnoringBatteryOptimizations(),
             breakRemindersEnabled = settingsRepository.isBreakRemindersEnabled(),
+            darkRoomWarningEnabled = settingsRepository.isDarkRoomWarningEnabled(),
             weeklyStats = settingsRepository.getWeeklyStats(),
         )
     }
@@ -242,6 +244,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun onBreakRemindersToggle(enabled: Boolean) {
         settingsRepository.setBreakRemindersEnabled(enabled)
+        refreshState()
+    }
+
+    private fun onDarkRoomWarningToggle(enabled: Boolean) {
+        settingsRepository.setDarkRoomWarningEnabled(enabled)
         refreshState()
     }
 

@@ -49,6 +49,10 @@
     <string name="break_text">Look at something ~6 m away for about 20 seconds</string>
     <string name="channel_break_name">Break reminders</string>
     <string name="label_break_reminders">Break reminders (20-20-20)</string>
+    <string name="dark_room_title">The room is too dark</string>
+    <string name="dark_room_text">A bright screen in the dark strains your eyes — turn on a light</string>
+    <string name="channel_dark_room_name">Dark room warnings</string>
+    <string name="label_dark_room_warning">Dark room warning</string>
     <string name="stats_title">This week</string>
     <string name="stats_monitoring_time">Monitoring time</string>
     <string name="stats_too_close_time">Too close</string>

@@ -64,6 +64,7 @@ data class MainUiState(
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
     val ignoringBatteryOptimizations: Boolean = false, // true = приложению не мешает оптимизация батареи
     val breakRemindersEnabled: Boolean = true,
+    val darkRoomWarningEnabled: Boolean = true,
     val weeklyStats: WeeklyStats = WeeklyStats(),
 )
 
@@ -134,6 +135,7 @@ fun AppScaffold(
     onRequestBatteryExemption: () -> Unit,
     onOpenAutostartSettings: () -> Unit,
     onBreakRemindersToggle: (Boolean) -> Unit,
+    onDarkRoomWarningToggle: (Boolean) -> Unit,
     ensureConsent: (onGranted: () -> Unit, onDenied: () -> Unit) -> Unit,
 ) {
     val navController = rememberNavController()
@@ -189,10 +191,12 @@ fun AppScaffold(
                         themeMode = mainState.themeMode,
                         ignoringBatteryOptimizations = mainState.ignoringBatteryOptimizations,
                         breakRemindersEnabled = mainState.breakRemindersEnabled,
+                        darkRoomWarningEnabled = mainState.darkRoomWarningEnabled,
                         contentBottomPadding = contentBottomPadding,
                         onChildModeToggle = onChildModeToggle,
                         onThresholdSelect = onThresholdSelect,
                         onBreakRemindersToggle = onBreakRemindersToggle,
+                        onDarkRoomWarningToggle = onDarkRoomWarningToggle,
                         onLanguageClick = { navController.navigate(ROUTE_LANGUAGE) },
                         onThemeClick = { navController.navigate(ROUTE_THEME) },
                         onBackgroundClick = { navController.navigate(ROUTE_BACKGROUND) },

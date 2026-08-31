@@ -3,6 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-feature android:name="android.hardware.camera.any" />
+    <!-- Датчик освещённости нужен только для предупреждения о тёмной комнате; без него
+         приложение работает полностью, поэтому required="false" (не фильтровать устройства). -->
+    <uses-feature android:name="android.hardware.sensor.light" android:required="false" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />

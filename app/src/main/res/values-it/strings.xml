@@ -44,6 +44,10 @@
     <string name="break_text">Guarda qualcosa a ~6 m per circa 20 secondi</string>
     <string name="channel_break_name">Promemoria pause</string>
     <string name="label_break_reminders">Promemoria pause (20-20-20)</string>
+    <string name="dark_room_title">La stanza è troppo buia</string>
+    <string name="dark_room_text">Uno schermo luminoso al buio affatica gli occhi: accendi una luce</string>
+    <string name="channel_dark_room_name">Avvisi di buio</string>
+    <string name="label_dark_room_warning">Avviso di buio</string>
     <string name="stats_title">Questa settimana</string>
     <string name="stats_monitoring_time">Tempo di monitoraggio</string>
     <string name="stats_too_close_time">Troppo vicino</string>

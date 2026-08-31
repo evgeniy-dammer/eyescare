@@ -50,6 +50,8 @@ operate confidently outside my home stack, as an **Agentic Engineering Lead / Pr
 - **Runs in the background** — a foreground service keeps monitoring while you use other apps.
 - **Calibration** — automatic (fit your face in the oval) or manual interpupillary-distance entry.
 - **Eye-care habits** — 20-20-20 break reminders and a weekly usage summary.
+- **Dark-room warning** — the ambient-light sensor (not the camera) notices when you're staring at a
+  bright screen in the dark, with hysteresis, a dwell time and a cooldown so it never nags.
 - **Child mode** — a more conservative threshold for kids.
 - **Battery-aware & resilient** — dynamic frame rate, camera released when the screen is off,
   auto-off on low battery, auto-resume after reboot / OEM kills.

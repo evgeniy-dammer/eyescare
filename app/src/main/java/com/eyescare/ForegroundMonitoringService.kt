@@ -13,6 +13,7 @@ import android.os.BatteryManager
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
+import android.util.Log
 import androidx.lifecycle.LifecycleService
 
 class ForegroundMonitoringService : LifecycleService() {
@@ -52,6 +53,7 @@ class ForegroundMonitoringService : LifecycleService() {
     /** Наклон устройства от вертикали; null — данных от датчика ещё не было. */
     private var deviceTiltDeg: Float? = null
     private var sensorsRegistered = false
+    private var lastSensorLogMs = 0L
 
     private val sensorListener = object : SensorEventListener {
         override fun onSensorChanged(event: SensorEvent) {
@@ -94,6 +96,8 @@ class ForegroundMonitoringService : LifecycleService() {
         private const val LOW_BATTERY_PERCENT = 15
         // Как часто сбрасывать накопленную статистику в prefs (страховка на случай убийства процесса).
         private const val STATS_FLUSH_INTERVAL_MS = 120_000L
+        // Троттлинг debug-логов датчиков (подбор порогов на устройстве).
+        private const val SENSOR_LOG_INTERVAL_MS = 700L
     }
 
     // Авто-выключение при низком заряде: система шлёт ACTION_BATTERY_LOW при достижении порога.
@@ -314,8 +318,23 @@ class ForegroundMonitoringService : LifecycleService() {
         deviceTiltDeg = null
     }
 
+    /**
+     * Диагностика порогов (только debug): пороги освещённости и наклона подбираются под реальные
+     * показания датчиков конкретного устройства, а по одним лишь справочным значениям их не
+     * выставить. Троттлится, чтобы не залить logcat.
+     * Смотреть: `adb logcat -s EyesCareSensors`.
+     */
+    private fun logSensors(message: String) {
+        if (!BuildConfig.DEBUG) return
+        val now = SystemClock.elapsedRealtime()
+        if (now - lastSensorLogMs < SENSOR_LOG_INTERVAL_MS) return
+        lastSensorLogMs = now
+        Log.d("EyesCareSensors", message)
+    }
+
     /** Освещённость: предупреждение о тёмной комнате. */
     private fun onLuxSample(lux: Float) {
+        logSensors("lux=%.1f tilt=%s".format(lux, deviceTiltDeg?.let { "%.1f".format(it) } ?: "—"))
         // Настройки проверяем в момент замера, а не при подписке: тумблер можно переключить, пока
         // сервис уже работает, и переподписываться на каждое изменение настроек не хочется.
         if (!settingsRepository.isDarkRoomWarningEnabled()) return
@@ -340,6 +359,7 @@ class ForegroundMonitoringService : LifecycleService() {
             return
         }
         val flexion = PostureMath.neckFlexionDeg(tilt, headEulerXDeg)
+        logSensors("tilt=%.1f headEulerX=%.1f flexion=%.1f".format(tilt, headEulerXDeg, flexion))
         if (posture.update(SystemClock.elapsedRealtime(), flexion)) {
             notifications.showPosture()
         }

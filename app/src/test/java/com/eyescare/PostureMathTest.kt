@@ -7,28 +7,36 @@ class PostureMathTest {
 
     private val g = 9.81f
 
+    // Знак осей взят не из документации, а с устройства: лежащий экраном вверх телефон даёт
+    // gravity = (0.40, 0.71, 9.77) — вектор направлен ВВЕРХ, поэтому «лежит» это +Z, а
+    // «вертикально» это +Y (Redmi 2201117TG, Android 15, 2026-08-31).
+
     @Test
     fun `upright phone has zero tilt`() {
-        // Экран вертикален: гравитация направлена вдоль корпуса вниз, то есть по −Y.
-        assertEquals(0f, PostureMath.deviceTiltFromVerticalDeg(gravityY = -g, gravityZ = 0f), 0.5f)
+        assertEquals(0f, PostureMath.deviceTiltFromVerticalDeg(gravityY = g, gravityZ = 0f), 0.5f)
     }
 
     @Test
     fun `phone lying face up is tilted ninety degrees`() {
-        // Лежит на столе экраном вверх: гравитация уходит «в спину» устройства, то есть по −Z.
-        assertEquals(90f, PostureMath.deviceTiltFromVerticalDeg(gravityY = 0f, gravityZ = -g), 0.5f)
+        assertEquals(90f, PostureMath.deviceTiltFromVerticalDeg(gravityY = 0f, gravityZ = g), 0.5f)
+    }
+
+    @Test
+    fun `real reading from a phone on a desk is almost flat`() {
+        // Ровно тот замер, которым проверялся знак осей.
+        assertEquals(86f, PostureMath.deviceTiltFromVerticalDeg(gravityY = 0.71f, gravityZ = 9.77f), 1f)
     }
 
     @Test
     fun `phone leaned back forty five degrees`() {
         val c = g * 0.7071f
-        assertEquals(45f, PostureMath.deviceTiltFromVerticalDeg(gravityY = -c, gravityZ = -c), 0.5f)
+        assertEquals(45f, PostureMath.deviceTiltFromVerticalDeg(gravityY = c, gravityZ = c), 0.5f)
     }
 
     @Test
     fun `phone leaned toward the user gives negative tilt`() {
         val c = g * 0.7071f
-        assertEquals(-45f, PostureMath.deviceTiltFromVerticalDeg(gravityY = -c, gravityZ = c), 0.5f)
+        assertEquals(-45f, PostureMath.deviceTiltFromVerticalDeg(gravityY = c, gravityZ = -c), 0.5f)
     }
 
     @Test

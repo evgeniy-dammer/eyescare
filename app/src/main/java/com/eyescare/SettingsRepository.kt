@@ -153,12 +153,11 @@ class SettingsRepository private constructor(context: Context) {
     }
 
     /**
-     * По умолчанию ВЫКЛЮЧЕНО, в отличие от остальных напоминаний. Расчёт наклона опирается на знак
-     * `headEulerAngleX` у ML Kit («плюс — лицо смотрит вверх»), который не проверен на устройстве;
-     * если знак окажется обратным, включённая по умолчанию фича слала бы напоминания людям с
-     * правильной посадкой. Включить по умолчанию после проверки на реальном телефоне.
+     * Включено по умолчанию с 2026-08-31: знак `headEulerAngleX` подтверждён замером на устройстве
+     * (Redmi 2201117TG) — опущенный подбородок даёт −65°, спокойная посадка −6…−15°, то есть «плюс —
+     * лицо смотрит вверх». До проверки фича стояла выключенной именно из-за этого допущения.
      */
-    fun isPostureWarningEnabled(): Boolean = prefs.getBoolean(KEY_POSTURE_WARNING, false)
+    fun isPostureWarningEnabled(): Boolean = prefs.getBoolean(KEY_POSTURE_WARNING, true)
 
     // --- Weekly usage stats (сбрасываются в начале новой недели) ---
     private fun rolloverStatsIfNeeded() {

@@ -68,7 +68,11 @@ fun MonitoringScreen(
         }
 
         if (enabled) {
-            LiveDistanceCard(status)
+            // Во время паузы камера выключена намеренно, и «лицо не найдено» ввело бы в
+            // заблуждение: карточка паузы ниже сама объясняет, что происходит.
+            if (status.snoozeUntilElapsedMs == null) {
+                LiveDistanceCard(status)
+            }
             SnoozeCard(
                 snoozeUntilElapsedMs = status.snoozeUntilElapsedMs,
                 optionsMinutes = snoozeOptionsMinutes,

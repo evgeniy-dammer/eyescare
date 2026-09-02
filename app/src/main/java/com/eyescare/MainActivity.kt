@@ -28,6 +28,11 @@ import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
 
+    companion object {
+        /** Тап по напоминанию 20-20-20 — открыть экран перерыва. */
+        const val ACTION_SHOW_BREAK = "com.eyescare.ACTION_SHOW_BREAK"
+    }
+
     private lateinit var settingsRepository: SettingsRepository
     private lateinit var calibrationController: CalibrationController
 
@@ -39,6 +44,9 @@ class MainActivity : AppCompatActivity() {
 
     // Онбординг первого запуска (показывается один раз вместо основного UI).
     private var onboardingDone by mutableStateOf(true)
+
+    // Экран перерыва 20-20-20: открывается тапом по уведомлению, показывается вместо основного UI.
+    private var showBreak by mutableStateOf(false)
 
     private class ConsentRequest(val onGranted: () -> Unit, val onDenied: () -> Unit)
 
@@ -69,6 +77,7 @@ class MainActivity : AppCompatActivity() {
         settingsRepository = SettingsRepository.getInstance(this)
         calibrationController = CalibrationController(this, settingsRepository)
         onboardingDone = settingsRepository.isOnboardingDone()
+        showBreak = consumeBreakIntent()
         refreshState()
 
         setContent {
@@ -78,6 +87,11 @@ class MainActivity : AppCompatActivity() {
                         settingsRepository.setOnboardingDone(true)
                         onboardingDone = true
                     })
+                    return@EyesCareTheme
+                }
+
+                if (showBreak) {
+                    BreakScreen(onFinish = { showBreak = false })
                     return@EyesCareTheme
                 }
 
@@ -125,6 +139,29 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    /**
+     * Приложение уже было открыто, когда нажали на уведомление о перерыве (activity объявлена
+     * `singleTop`). Без этого экран перерыва не показался бы: onCreate во второй раз не вызывается.
+     */
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (consumeBreakIntent()) showBreak = true
+    }
+
+    /**
+     * Проверяет, что активность открыли ради перерыва, и СБРАСЫВАЕТ действие. Сброс обязателен:
+     * иначе после выхода с экрана перерыва система при возврате из «недавних» подсунула бы тот же
+     * интент, и перерыв открывался бы снова и снова.
+     */
+    private fun consumeBreakIntent(): Boolean {
+        val current = intent ?: return false
+        if (current.action != ACTION_SHOW_BREAK) return false
+        current.action = null
+        setIntent(current)
+        return true
     }
 
     override fun onResume() {

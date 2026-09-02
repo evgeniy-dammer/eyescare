@@ -48,6 +48,14 @@
     <string name="break_title">Time for a break</string>
     <string name="break_text">Look at something ~6 m away for about 20 seconds</string>
     <string name="channel_break_name">Break reminders</string>
+    <string name="break_step_look_far">Look far away</string>
+    <string name="break_step_look_far_hint">Focus on something about 6 m away. You don\'t need to watch the screen.</string>
+    <string name="break_step_blink">Blink slowly</string>
+    <string name="break_step_blink_hint">A few slow blinks restore the tear film dried out by the screen.</string>
+    <string name="break_step_done">Break complete</string>
+    <string name="break_step_done_hint">Your eyes have rested. See you in 20 minutes.</string>
+    <string name="break_action_skip">Skip</string>
+    <string name="break_action_close">Close</string>
     <string name="label_break_reminders">Break reminders (20-20-20)</string>
     <string name="dark_room_title">The room is too dark</string>
     <string name="dark_room_text">A bright screen in the dark strains your eyes — turn on a light</string>

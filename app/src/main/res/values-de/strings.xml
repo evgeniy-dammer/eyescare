@@ -43,6 +43,14 @@
     <string name="break_title">Zeit für eine Pause</string>
     <string name="break_text">Schauen Sie etwa 20 Sekunden auf etwas ~6 m Entferntes</string>
     <string name="channel_break_name">Pausenerinnerungen</string>
+    <string name="break_step_look_far">Schauen Sie in die Ferne</string>
+    <string name="break_step_look_far_hint">Fixieren Sie etwa 6 m entfernt einen Punkt. Sie müssen nicht auf den Bildschirm sehen.</string>
+    <string name="break_step_blink">Langsam blinzeln</string>
+    <string name="break_step_blink_hint">Ein paar langsame Lidschläge stellen den vom Bildschirm ausgetrockneten Tränenfilm wieder her.</string>
+    <string name="break_step_done">Pause beendet</string>
+    <string name="break_step_done_hint">Ihre Augen haben sich erholt. Bis in 20 Minuten.</string>
+    <string name="break_action_skip">Überspringen</string>
+    <string name="break_action_close">Schließen</string>
     <string name="label_break_reminders">Pausenerinnerungen (20-20-20)</string>
     <string name="dark_room_title">Der Raum ist zu dunkel</string>
     <string name="dark_room_text">Ein heller Bildschirm im Dunkeln ermüdet die Augen — schalten Sie Licht ein</string>

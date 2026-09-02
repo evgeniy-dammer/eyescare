@@ -43,6 +43,14 @@
     <string name="break_title">È ora di una pausa</string>
     <string name="break_text">Guarda qualcosa a ~6 m per circa 20 secondi</string>
     <string name="channel_break_name">Promemoria pause</string>
+    <string name="break_step_look_far">Guarda lontano</string>
+    <string name="break_step_look_far_hint">Fissa qualcosa a circa 6 m. Non serve guardare lo schermo.</string>
+    <string name="break_step_blink">Sbatti le palpebre lentamente</string>
+    <string name="break_step_blink_hint">Qualche battito lento ripristina il film lacrimale seccato dallo schermo.</string>
+    <string name="break_step_done">Pausa completata</string>
+    <string name="break_step_done_hint">I tuoi occhi hanno riposato. Ci vediamo tra 20 minuti.</string>
+    <string name="break_action_skip">Salta</string>
+    <string name="break_action_close">Chiudi</string>
     <string name="label_break_reminders">Promemoria pause (20-20-20)</string>
     <string name="dark_room_title">La stanza è troppo buia</string>
     <string name="dark_room_text">Uno schermo luminoso al buio affatica gli occhi: accendi una luce</string>

@@ -43,6 +43,14 @@
     <string name="break_title">Hora de un descanso</string>
     <string name="break_text">Mira algo a ~6 m durante unos 20 segundos</string>
     <string name="channel_break_name">Recordatorios de descanso</string>
+    <string name="break_step_look_far">Mira a lo lejos</string>
+    <string name="break_step_look_far_hint">Fija la vista en algo a unos 6 m. No hace falta mirar la pantalla.</string>
+    <string name="break_step_blink">Parpadea despacio</string>
+    <string name="break_step_blink_hint">Unos parpadeos lentos restauran la película lagrimal que reseca la pantalla.</string>
+    <string name="break_step_done">Descanso completado</string>
+    <string name="break_step_done_hint">Tus ojos han descansado. Nos vemos en 20 minutos.</string>
+    <string name="break_action_skip">Omitir</string>
+    <string name="break_action_close">Cerrar</string>
     <string name="label_break_reminders">Recordatorios de descanso (20-20-20)</string>
     <string name="dark_room_title">La habitación está demasiado oscura</string>
     <string name="dark_room_text">Una pantalla brillante a oscuras cansa la vista: enciende una luz</string>

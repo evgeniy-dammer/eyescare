@@ -43,6 +43,14 @@
     <string name="break_title">Пора сделать перерыв</string>
     <string name="break_text">Посмотрите вдаль (~6 м) около 20 секунд</string>
     <string name="channel_break_name">Напоминания о перерывах</string>
+    <string name="break_step_look_far">Посмотрите вдаль</string>
+    <string name="break_step_look_far_hint">Найдите взглядом что-нибудь метрах в шести. На экран смотреть не нужно.</string>
+    <string name="break_step_blink">Поморгайте медленно</string>
+    <string name="break_step_blink_hint">Несколько медленных морганий восстанавливают слёзную плёнку, подсушенную экраном.</string>
+    <string name="break_step_done">Перерыв закончен</string>
+    <string name="break_step_done_hint">Глаза отдохнули. Встретимся через 20 минут.</string>
+    <string name="break_action_skip">Пропустить</string>
+    <string name="break_action_close">Закрыть</string>
     <string name="label_break_reminders">Напоминания о перерывах (20-20-20)</string>
     <string name="dark_room_title">В комнате слишком темно</string>
     <string name="dark_room_text">Яркий экран в темноте утомляет глаза — включите свет</string>

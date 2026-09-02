@@ -143,14 +143,28 @@ class MonitoringNotifications(private val context: Context) {
         manager.notify(LOW_BATTERY_ID, n)
     }
 
+    /**
+     * Напоминание 20-20-20. Тап открывает экран перерыва с отсчётом: раньше уведомление было
+     * текстом без действия, и перерыв ничего не стоило смахнуть, так и не сделав.
+     */
     fun showBreak() {
         if (!hasPermission()) return
+        val launch = Intent(context, MainActivity::class.java).apply {
+            action = MainActivity.ACTION_SHOW_BREAK
+            // SINGLE_TOP: если приложение уже открыто, переиспользуем экземпляр (onNewIntent),
+            // а не кладём поверх второй.
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        val pending = PendingIntent.getActivity(
+            context, REQ_BREAK, launch, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
         val n = NotificationCompat.Builder(context, BREAK_CHANNEL_ID)
             .setContentTitle(context.getString(R.string.break_title))
             .setContentText(context.getString(R.string.break_text))
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true)
+            .setContentIntent(pending)
             .build()
         manager.notify(BREAK_ID, n)
     }
@@ -214,6 +228,7 @@ class MonitoringNotifications(private val context: Context) {
         private const val REQ_STOP = 0
         private const val REQ_SNOOZE = 1
         private const val REQ_CANCEL_SNOOZE = 2
+        private const val REQ_BREAK = 3
 
         private const val CHANNEL_ID = "monitoring_service"
         private const val WARNING_CHANNEL_ID = "warning_service"

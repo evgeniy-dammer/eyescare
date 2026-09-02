@@ -49,7 +49,8 @@ operate confidently outside my home stack, as an **Agentic Engineering Lead / Pr
   vibration and an emergency-stop button; appears/disappears with hysteresis so it never flickers.
 - **Runs in the background** — a foreground service keeps monitoring while you use other apps.
 - **Calibration** — automatic (fit your face in the oval) or manual interpupillary-distance entry.
-- **Eye-care habits** — 20-20-20 break reminders and a weekly usage summary.
+- **Eye-care habits** — 20-20-20 break reminders that open a guided break screen (look far away,
+  then blink) instead of a notification that is easy to swipe away, plus a weekly usage summary.
 - **Dark-room warning** — the ambient-light sensor (not the camera) notices when you're staring at a
   bright screen in the dark, with hysteresis, a dwell time and a cooldown so it never nags.
 - **Posture reminder** — head tilt from ML Kit combined with device tilt from the gravity sensor

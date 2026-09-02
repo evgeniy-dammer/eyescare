@@ -43,6 +43,14 @@
     <string name="break_title">C\'est l\'heure d\'une pause</string>
     <string name="break_text">Regardez à ~6 m pendant environ 20 secondes</string>
     <string name="channel_break_name">Rappels de pause</string>
+    <string name="break_step_look_far">Regardez au loin</string>
+    <string name="break_step_look_far_hint">Fixez un point à environ 6 m. Inutile de regarder l\'écran.</string>
+    <string name="break_step_blink">Clignez lentement</string>
+    <string name="break_step_blink_hint">Quelques clignements lents restaurent le film lacrymal asséché par l\'écran.</string>
+    <string name="break_step_done">Pause terminée</string>
+    <string name="break_step_done_hint">Vos yeux se sont reposés. À dans 20 minutes.</string>
+    <string name="break_action_skip">Passer</string>
+    <string name="break_action_close">Fermer</string>
     <string name="label_break_reminders">Rappels de pause (20-20-20)</string>
     <string name="dark_room_title">La pièce est trop sombre</string>
     <string name="dark_room_text">Un écran lumineux dans le noir fatigue les yeux — allumez une lampe</string>

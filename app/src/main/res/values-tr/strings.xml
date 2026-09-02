@@ -43,6 +43,14 @@
     <string name="break_title">Mola zamanı</string>
     <string name="break_text">Yaklaşık 20 saniye ~6 m uzağa bakın</string>
     <string name="channel_break_name">Mola hatırlatıcıları</string>
+    <string name="break_step_look_far">Uzağa bakın</string>
+    <string name="break_step_look_far_hint">Yaklaşık 6 m uzaktaki bir noktaya odaklanın. Ekrana bakmanız gerekmez.</string>
+    <string name="break_step_blink">Yavaşça göz kırpın</string>
+    <string name="break_step_blink_hint">Birkaç yavaş göz kırpma, ekranın kuruttuğu gözyaşı tabakasını onarır.</string>
+    <string name="break_step_done">Mola tamamlandı</string>
+    <string name="break_step_done_hint">Gözleriniz dinlendi. 20 dakika sonra görüşürüz.</string>
+    <string name="break_action_skip">Atla</string>
+    <string name="break_action_close">Kapat</string>
     <string name="label_break_reminders">Mola hatırlatıcıları (20-20-20)</string>
     <string name="dark_room_title">Oda çok karanlık</string>
     <string name="dark_room_text">Karanlıkta parlak ekran gözleri yorar — bir ışık yakın</string>

@@ -32,6 +32,20 @@
     <string name="resume_text">Tocca per riprendere il monitoraggio della distanza</string>
     <string name="channel_resume_name">Riprendi monitoraggio</string>
     <string name="label_background">Attività in background</string>
+    <string name="label_schedule">Orario</string>
+    <string name="schedule_enable">Usa un orario</string>
+    <string name="schedule_days">Giorni</string>
+    <string name="schedule_start">Inizio</string>
+    <string name="schedule_end">Fine</string>
+    <string name="schedule_hint">Fuori da queste ore il monitoraggio si mette in pausa e la fotocamera viene rilasciata.</string>
+    <string name="schedule_hint_overnight">La fascia supera la mezzanotte, quindi appartiene al giorno in cui inizia.</string>
+    <string name="schedule_off">Disattivato</string>
+    <plurals name="schedule_days_count">
+        <item quantity="one">%1$d giorno</item>
+        <item quantity="many">%1$d di giorni</item>
+        <item quantity="other">%1$d giorni</item>
+    </plurals>
+    <string name="notif_outside_schedule">Fuori orario</string>
     <string name="background_desc">Il monitoraggio funziona come servizio in background. Per evitare che il sistema lo interrompa, consenti l\'esecuzione senza restrizioni della batteria e abilita l\'avvio automatico.</string>
     <string name="battery_opt_title">Ottimizzazione batteria</string>
     <string name="battery_opt_unrestricted">Senza restrizioni</string>

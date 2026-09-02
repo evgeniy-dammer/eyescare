@@ -159,6 +159,34 @@ class SettingsRepository private constructor(context: Context) {
      */
     fun isPostureWarningEnabled(): Boolean = prefs.getBoolean(KEY_POSTURE_WARNING, true)
 
+    // --- Расписание мониторинга ---
+    fun setSchedule(schedule: MonitoringSchedule) {
+        prefs.edit().apply {
+            putBoolean(KEY_SCHEDULE_ENABLED, schedule.enabled)
+            // Дни храним строкой «1,2,3» — читаемо в отладке и не зависит от порядка множества.
+            putString(KEY_SCHEDULE_DAYS, schedule.days.sorted().joinToString(","))
+            putInt(KEY_SCHEDULE_START, schedule.startMinuteOfDay)
+            putInt(KEY_SCHEDULE_END, schedule.endMinuteOfDay)
+            apply()
+        }
+    }
+
+    fun getSchedule(): MonitoringSchedule {
+        val raw = prefs.getString(KEY_SCHEDULE_DAYS, null)
+        val days = if (raw == null) {
+            MonitoringSchedule.DEFAULT_DAYS
+        } else {
+            // Повреждённое значение не должно ронять старт: непарсящиеся элементы просто отбрасываем.
+            raw.split(",").mapNotNull { it.trim().toIntOrNull() }.filter { it in 1..7 }.toSet()
+        }
+        return MonitoringSchedule(
+            enabled = prefs.getBoolean(KEY_SCHEDULE_ENABLED, false),
+            days = days,
+            startMinuteOfDay = prefs.getInt(KEY_SCHEDULE_START, MonitoringSchedule.DEFAULT_START),
+            endMinuteOfDay = prefs.getInt(KEY_SCHEDULE_END, MonitoringSchedule.DEFAULT_END),
+        )
+    }
+
     // --- Weekly usage stats (сбрасываются в начале новой недели) ---
     private fun rolloverStatsIfNeeded() {
         val current = weekIdForEpochDay(java.time.LocalDate.now().toEpochDay())
@@ -232,6 +260,10 @@ class SettingsRepository private constructor(context: Context) {
         private const val KEY_BREAK_REMINDERS = "break_reminders"
         private const val KEY_DARK_ROOM_WARNING = "dark_room_warning"
         private const val KEY_POSTURE_WARNING = "posture_warning"
+        private const val KEY_SCHEDULE_ENABLED = "schedule_enabled"
+        private const val KEY_SCHEDULE_DAYS = "schedule_days"
+        private const val KEY_SCHEDULE_START = "schedule_start"
+        private const val KEY_SCHEDULE_END = "schedule_end"
         private const val KEY_STATS_WEEK_ID = "stats_week_id"
         private const val KEY_STATS_MONITOR_SEC = "stats_monitor_sec"
         private const val KEY_STATS_TOOCLOSE_SEC = "stats_tooclose_sec"

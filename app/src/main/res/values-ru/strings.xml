@@ -32,6 +32,21 @@
     <string name="resume_text">Нажмите, чтобы возобновить мониторинг расстояния</string>
     <string name="channel_resume_name">Возобновление мониторинга</string>
     <string name="label_background">Работа в фоне</string>
+    <string name="label_schedule">Расписание</string>
+    <string name="schedule_enable">Работать по расписанию</string>
+    <string name="schedule_days">Дни</string>
+    <string name="schedule_start">Начало</string>
+    <string name="schedule_end">Конец</string>
+    <string name="schedule_hint">Вне этих часов мониторинг приостанавливается, камера отпускается.</string>
+    <string name="schedule_hint_overnight">Окно переходит через полночь, поэтому относится к тому дню, в который началось.</string>
+    <string name="schedule_off">Выключено</string>
+    <plurals name="schedule_days_count">
+        <item quantity="one">%1$d день</item>
+        <item quantity="few">%1$d дня</item>
+        <item quantity="many">%1$d дней</item>
+        <item quantity="other">%1$d дня</item>
+    </plurals>
+    <string name="notif_outside_schedule">Вне расписания</string>
     <string name="background_desc">Мониторинг работает как фоновый сервис. Чтобы система его не выгружала, разрешите работу без ограничений батареи и включите автозапуск.</string>
     <string name="battery_opt_title">Оптимизация батареи</string>
     <string name="battery_opt_unrestricted">Без ограничений</string>

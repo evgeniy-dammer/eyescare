@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -35,11 +36,13 @@ fun SettingsScreen(
     breakRemindersEnabled: Boolean,
     darkRoomWarningEnabled: Boolean,
     postureWarningEnabled: Boolean,
+    schedule: MonitoringSchedule,
     onChildModeToggle: (Boolean) -> Unit,
     onThresholdSelect: (Int) -> Unit,
     onBreakRemindersToggle: (Boolean) -> Unit,
     onDarkRoomWarningToggle: (Boolean) -> Unit,
     onPostureWarningToggle: (Boolean) -> Unit,
+    onScheduleClick: () -> Unit,
     onLanguageClick: () -> Unit,
     onThemeClick: () -> Unit,
     onBackgroundClick: () -> Unit,
@@ -140,6 +143,21 @@ fun SettingsScreen(
                     label = stringResource(R.string.label_theme),
                     value = themeLabel,
                     onClick = onThemeClick,
+                )
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+
+                // Расписание (открывает детальный экран)
+                NavigationRow(
+                    label = stringResource(R.string.label_schedule),
+                    value = if (schedule.enabled) {
+                        // plurals, а не строка с %d: «1 days» неверно по-английски, а в русском
+                        // три формы (день/дня/дней).
+                        pluralStringResource(R.plurals.schedule_days_count, schedule.days.size, schedule.days.size)
+                    } else {
+                        stringResource(R.string.schedule_off)
+                    },
+                    onClick = onScheduleClick,
                 )
 
                 HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))

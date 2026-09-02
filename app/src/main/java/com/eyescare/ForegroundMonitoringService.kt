@@ -71,6 +71,18 @@ class ForegroundMonitoringService : LifecycleService() {
 
     /** Снуз закончился — поднимаем камеру (если экран к этому моменту не погас). */
     private val snoozeExpiryRunnable = Runnable { expireSnooze() }
+
+    /**
+     * Периодическая сверка с расписанием. Тик, а не будильник: сервис и так жив всё время (иначе
+     * camera-FGS не поднять из фона на Android 14+), а точность до минуты здесь достаточна.
+     * Проверка вызывается ещё и по включению экрана — в глубоком сне Handler не тикает.
+     */
+    private val scheduleRunnable = object : Runnable {
+        override fun run() {
+            applySchedule()
+            handler.postDelayed(this, SCHEDULE_CHECK_INTERVAL_MS)
+        }
+    }
     private val statsFlushRunnable = object : Runnable {
         override fun run() {
             flushStats(keepCounting = true)
@@ -96,6 +108,8 @@ class ForegroundMonitoringService : LifecycleService() {
         private const val LOW_BATTERY_PERCENT = 15
         // Как часто сбрасывать накопленную статистику в prefs (страховка на случай убийства процесса).
         private const val STATS_FLUSH_INTERVAL_MS = 120_000L
+        // Как часто сверяться с расписанием (границы окна заданы с точностью до минуты).
+        private const val SCHEDULE_CHECK_INTERVAL_MS = 30_000L
         // Троттлинг debug-логов датчиков (подбор порогов на устройстве).
         private const val SENSOR_LOG_INTERVAL_MS = 700L
     }
@@ -122,6 +136,9 @@ class ForegroundMonitoringService : LifecycleService() {
                     // снимаем просроченный снуз, иначе он держал бы камеру до срабатывания
                     // таймера уже после пробуждения.
                     expireSnooze()
+                    // Пока устройство спало, окно расписания могло закрыться или открыться,
+                    // а тик Handler'а в глубоком сне не шёл.
+                    applySchedule()
                     resumeMonitoring(PauseReason.SCREEN_OFF)
                 }
             }
@@ -213,6 +230,9 @@ class ForegroundMonitoringService : LifecycleService() {
         MonitoringStateHolder.setRunning(true)
         stats.startMonitoring(SystemClock.elapsedRealtime())
         handler.postDelayed(statsFlushRunnable, STATS_FLUSH_INTERVAL_MS)
+        // Сразу приводим состояние в соответствие расписанию: включить мониторинг могли и вне окна.
+        applySchedule()
+        handler.postDelayed(scheduleRunnable, SCHEDULE_CHECK_INTERVAL_MS)
         // НЕ sticky: авто-перезапуск системой camera-FGS на Android 14+ ненадёжен (нельзя вывести
         // while-in-use сервис в foreground из фона). Восстановление — через авто-возобновление при
         // открытии приложения, BootReceiver и WorkManager-сторож (ResumeWatchWorker).
@@ -224,6 +244,7 @@ class ForegroundMonitoringService : LifecycleService() {
         flushStats(keepCounting = false)
         handler.removeCallbacks(statsFlushRunnable)
         handler.removeCallbacks(snoozeExpiryRunnable)
+        handler.removeCallbacks(scheduleRunnable)
         stopSensors()
         cameraAnalyzer.shutdown()
         overlayManager.hideOverlay()
@@ -293,6 +314,27 @@ class ForegroundMonitoringService : LifecycleService() {
         if (pause.expireSnoozeIfDue(SystemClock.elapsedRealtime())) acquireCamera()
         MonitoringStateHolder.setSnoozeUntil(pause.snoozeUntilMs())
         updateNotification(null, force = true)
+    }
+
+    /**
+     * Сверяет текущее время с расписанием и ставит/снимает соответствующую причину паузы.
+     * Вне окна камера отпускается, но сервис остаётся foreground — иначе обратно его не поднять.
+     */
+    private fun applySchedule() {
+        val schedule = settingsRepository.getSchedule()
+        val now = java.time.LocalDateTime.now()
+        val allowed = schedule.isMonitoringAllowedAt(
+            dayOfWeek = now.dayOfWeek.value,
+            minuteOfDay = now.hour * 60 + now.minute,
+        )
+        val pausedBySchedule = pause.isPausedBySchedule
+        if (allowed && pausedBySchedule) {
+            resumeMonitoring(PauseReason.SCHEDULE)
+            updateNotification(null, force = true)
+        } else if (!allowed && !pausedBySchedule) {
+            pauseMonitoring(PauseReason.SCHEDULE)
+            updateNotification(null, force = true)
+        }
     }
 
     /**
@@ -444,6 +486,7 @@ class ForegroundMonitoringService : LifecycleService() {
         val contentText = status ?: when {
             // Во время паузы дистанции нет, и «лицо не найдено» ввело бы в заблуждение.
             pause.isSnoozed -> getString(R.string.notif_snoozed)
+            pause.isPausedBySchedule -> getString(R.string.notif_outside_schedule)
             lastKnownDistance != null -> getString(R.string.notif_distance, lastKnownDistance)
             else -> getString(R.string.notif_face_not_found)
         }

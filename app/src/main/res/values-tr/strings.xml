@@ -32,6 +32,19 @@
     <string name="resume_text">Mesafe izlemeyi sürdürmek için dokunun</string>
     <string name="channel_resume_name">İzlemeyi sürdür</string>
     <string name="label_background">Arka plan etkinliği</string>
+    <string name="label_schedule">Zamanlama</string>
+    <string name="schedule_enable">Zamanlama kullan</string>
+    <string name="schedule_days">Günler</string>
+    <string name="schedule_start">Başlangıç</string>
+    <string name="schedule_end">Bitiş</string>
+    <string name="schedule_hint">Bu saatlerin dışında izleme duraklar ve kamera serbest bırakılır.</string>
+    <string name="schedule_hint_overnight">Aralık gece yarısını aşıyor, bu yüzden başladığı güne aittir.</string>
+    <string name="schedule_off">Kapalı</string>
+    <plurals name="schedule_days_count">
+        <item quantity="one">%1$d gün</item>
+        <item quantity="other">%1$d gün</item>
+    </plurals>
+    <string name="notif_outside_schedule">Zamanlama dışında</string>
     <string name="background_desc">İzleme bir arka plan hizmeti olarak çalışır. Sistemin durdurmaması için uygulamanın pil kısıtlaması olmadan çalışmasına izin verin ve otomatik başlatmayı etkinleştirin.</string>
     <string name="battery_opt_title">Pil optimizasyonu</string>
     <string name="battery_opt_unrestricted">Kısıtlamasız</string>

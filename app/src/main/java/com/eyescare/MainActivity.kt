@@ -115,6 +115,7 @@ class MainActivity : AppCompatActivity() {
                     onBreakRemindersToggle = ::onBreakRemindersToggle,
                     onDarkRoomWarningToggle = ::onDarkRoomWarningToggle,
                     onPostureWarningToggle = ::onPostureWarningToggle,
+                    onScheduleChange = ::onScheduleChange,
                     onSnooze = ::snoozeMonitoring,
                     onCancelSnooze = ::cancelSnooze,
                     ensureConsent = ::ensureConsent,
@@ -204,6 +205,7 @@ class MainActivity : AppCompatActivity() {
             breakRemindersEnabled = settingsRepository.isBreakRemindersEnabled(),
             darkRoomWarningEnabled = settingsRepository.isDarkRoomWarningEnabled(),
             postureWarningEnabled = settingsRepository.isPostureWarningEnabled(),
+            schedule = settingsRepository.getSchedule(),
             weeklyStats = settingsRepository.getWeeklyStats(),
         )
     }
@@ -295,6 +297,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun onPostureWarningToggle(enabled: Boolean) {
         settingsRepository.setPostureWarningEnabled(enabled)
+        refreshState()
+    }
+
+    private fun onScheduleChange(schedule: MonitoringSchedule) {
+        settingsRepository.setSchedule(schedule)
         refreshState()
     }
 

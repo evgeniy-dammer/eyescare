@@ -32,6 +32,19 @@
     <string name="resume_text">Tippen, um die Abstandsüberwachung fortzusetzen</string>
     <string name="channel_resume_name">Überwachung fortsetzen</string>
     <string name="label_background">Hintergrundaktivität</string>
+    <string name="label_schedule">Zeitplan</string>
+    <string name="schedule_enable">Zeitplan verwenden</string>
+    <string name="schedule_days">Tage</string>
+    <string name="schedule_start">Beginn</string>
+    <string name="schedule_end">Ende</string>
+    <string name="schedule_hint">Außerhalb dieser Zeiten pausiert die Überwachung und die Kamera wird freigegeben.</string>
+    <string name="schedule_hint_overnight">Das Fenster geht über Mitternacht und gehört daher zum Starttag.</string>
+    <string name="schedule_off">Aus</string>
+    <plurals name="schedule_days_count">
+        <item quantity="one">%1$d Tag</item>
+        <item quantity="other">%1$d Tage</item>
+    </plurals>
+    <string name="notif_outside_schedule">Außerhalb des Zeitplans</string>
     <string name="background_desc">Die Überwachung läuft als Hintergrunddienst. Damit das System ihn nicht beendet, erlaube die Ausführung ohne Akku-Einschränkungen und aktiviere den Autostart.</string>
     <string name="battery_opt_title">Akku-Optimierung</string>
     <string name="battery_opt_unrestricted">Uneingeschränkt</string>

@@ -7,6 +7,9 @@ enum class PauseReason {
 
     /** Пользователь сам поставил мониторинг на паузу на время (снуз). */
     SNOOZE,
+
+    /** Сейчас вне окна расписания. */
+    SCHEDULE,
 }
 
 /**
@@ -30,6 +33,9 @@ class MonitoringPause {
 
     /** Активен ли пользовательский снуз (в том числе когда экран заодно погашен). */
     val isSnoozed: Boolean get() = PauseReason.SNOOZE in reasons
+
+    /** Стоит ли пауза из-за расписания (в том числе одновременно с другими причинами). */
+    val isPausedBySchedule: Boolean get() = PauseReason.SCHEDULE in reasons
 
     /**
      * Ставит на паузу по указанной причине.

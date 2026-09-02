@@ -32,6 +32,20 @@
     <string name="resume_text">Appuyez pour reprendre la surveillance de la distance</string>
     <string name="channel_resume_name">Reprendre la surveillance</string>
     <string name="label_background">Activité en arrière-plan</string>
+    <string name="label_schedule">Horaires</string>
+    <string name="schedule_enable">Utiliser des horaires</string>
+    <string name="schedule_days">Jours</string>
+    <string name="schedule_start">Début</string>
+    <string name="schedule_end">Fin</string>
+    <string name="schedule_hint">En dehors de ces heures, la surveillance se met en pause et la caméra est libérée.</string>
+    <string name="schedule_hint_overnight">La plage passe minuit : elle appartient donc au jour où elle commence.</string>
+    <string name="schedule_off">Désactivé</string>
+    <plurals name="schedule_days_count">
+        <item quantity="one">%1$d jour</item>
+        <item quantity="many">%1$d de jours</item>
+        <item quantity="other">%1$d jours</item>
+    </plurals>
+    <string name="notif_outside_schedule">Hors horaires</string>
     <string name="background_desc">La surveillance fonctionne comme un service en arrière-plan. Pour éviter que le système ne l\'arrête, autorisez l\'exécution sans restrictions de batterie et activez le démarrage automatique.</string>
     <string name="battery_opt_title">Optimisation de la batterie</string>
     <string name="battery_opt_unrestricted">Sans restriction</string>

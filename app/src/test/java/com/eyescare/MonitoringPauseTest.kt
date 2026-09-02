@@ -108,6 +108,21 @@ class MonitoringPauseTest {
     }
 
     @Test
+    fun `schedule stacks with the other reasons`() {
+        val p = MonitoringPause()
+        assertTrue(p.pause(PauseReason.SCHEDULE))   // вышли из окна — камеру отпустить
+        assertTrue(p.isPausedBySchedule)
+
+        assertFalse(p.snooze(0, tenMin))            // уже стоим, второй раз отпускать нечего
+        assertFalse(p.resume(PauseReason.SCHEDULE)) // окно открылось, но снуз ещё держит
+        assertFalse(p.isPausedBySchedule)
+        assertTrue(p.isPaused)
+
+        assertTrue(p.resume(PauseReason.SNOOZE))    // причин не осталось
+        assertFalse(p.isPaused)
+    }
+
+    @Test
     fun `manual resume clears the snooze deadline`() {
         val p = MonitoringPause()
         p.snooze(0, tenMin)

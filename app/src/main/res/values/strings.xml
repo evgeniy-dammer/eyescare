@@ -37,6 +37,19 @@
     <string name="resume_text">Tap to resume distance monitoring</string>
     <string name="channel_resume_name">Resume monitoring</string>
     <string name="label_background">Background activity</string>
+    <string name="label_schedule">Schedule</string>
+    <string name="schedule_enable">Use a schedule</string>
+    <string name="schedule_days">Days</string>
+    <string name="schedule_start">Start</string>
+    <string name="schedule_end">End</string>
+    <string name="schedule_hint">Outside these hours monitoring pauses and the camera is released.</string>
+    <string name="schedule_hint_overnight">The window crosses midnight, so it belongs to the day it starts on.</string>
+    <string name="schedule_off">Off</string>
+    <plurals name="schedule_days_count">
+        <item quantity="one">%1$d day</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
+    <string name="notif_outside_schedule">Outside the schedule</string>
     <string name="background_desc">Monitoring runs as a background service. To keep the system from stopping it, allow the app to run without battery restrictions and enable autostart.</string>
     <string name="battery_opt_title">Battery optimization</string>
     <string name="battery_opt_unrestricted">Unrestricted</string>

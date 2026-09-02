@@ -32,6 +32,20 @@
     <string name="resume_text">Toca para reanudar la monitorización de distancia</string>
     <string name="channel_resume_name">Reanudar monitorización</string>
     <string name="label_background">Actividad en segundo plano</string>
+    <string name="label_schedule">Horario</string>
+    <string name="schedule_enable">Usar un horario</string>
+    <string name="schedule_days">Días</string>
+    <string name="schedule_start">Inicio</string>
+    <string name="schedule_end">Fin</string>
+    <string name="schedule_hint">Fuera de estas horas la supervisión se pausa y se libera la cámara.</string>
+    <string name="schedule_hint_overnight">La franja cruza la medianoche, así que pertenece al día en que empieza.</string>
+    <string name="schedule_off">Desactivado</string>
+    <plurals name="schedule_days_count">
+        <item quantity="one">%1$d día</item>
+        <item quantity="many">%1$d de días</item>
+        <item quantity="other">%1$d días</item>
+    </plurals>
+    <string name="notif_outside_schedule">Fuera del horario</string>
     <string name="background_desc">La monitorización funciona como un servicio en segundo plano. Para que el sistema no lo detenga, permite la ejecución sin restricciones de batería y activa el inicio automático.</string>
     <string name="battery_opt_title">Optimización de batería</string>
     <string name="battery_opt_unrestricted">Sin restricciones</string>

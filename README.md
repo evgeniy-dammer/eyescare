@@ -59,6 +59,8 @@ operate confidently outside my home stack, as an **Agentic Engineering Lead / Pr
 - **Pause on demand** — snooze monitoring for 15/30/60 minutes from the app or straight from the
   notification, for legitimate close-up viewing; the service stays alive and only releases the camera.
 - **Child mode** — a more conservative threshold for kids.
+- **Schedule** — pick the days and hours when monitoring should run at all; outside the window the
+  camera is released while the service stays alive. Overnight windows are handled correctly.
 - **Battery-aware & resilient** — dynamic frame rate, camera released when the screen is off,
   auto-off on low battery, auto-resume after reboot / OEM kills.
 - **Accuracy R&D** — a debug-only prototype measuring distance from **iris diameter** (MediaPipe Face

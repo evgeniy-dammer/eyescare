@@ -71,12 +71,16 @@ data class MainUiState(
     /** Последние дни по возрастанию, с пустыми днями на местах пропусков (см. [StatsHistory]). */
     val dailyHistory: List<DailyStats> = emptyList(),
     val goodDayStreak: Int = 0,
+    val alertSignal: AlertSignal = AlertSignal.DEFAULT,
+    /** Название выбранного звука предупреждения (готовое для показа; пусто — системный). */
+    val alertSoundTitle: String = "",
 )
 
 private const val ROUTE_LANGUAGE = "language"
 private const val ROUTE_THEME = "theme"
 private const val ROUTE_BACKGROUND = "background"
 private const val ROUTE_SCHEDULE = "schedule"
+private const val ROUTE_ALERT = "alert"
 
 private sealed class Destination(
     val route: String,
@@ -110,6 +114,7 @@ private val NAV_ORDER = listOf(
     ROUTE_THEME,
     ROUTE_BACKGROUND,
     ROUTE_SCHEDULE,
+    ROUTE_ALERT,
 )
 
 /** Направление слайда по порядку экранов: вправо к «дальнему», влево — к «ближнему». */
@@ -145,6 +150,8 @@ fun AppScaffold(
     onDarkRoomWarningToggle: (Boolean) -> Unit,
     onPostureWarningToggle: (Boolean) -> Unit,
     onScheduleChange: (MonitoringSchedule) -> Unit,
+    onSelectAlertSignal: (AlertSignal) -> Unit,
+    onPickAlertSound: () -> Unit,
     onSnooze: (minutes: Int) -> Unit,
     onCancelSnooze: () -> Unit,
     ensureConsent: (onGranted: () -> Unit, onDenied: () -> Unit) -> Unit,
@@ -211,6 +218,7 @@ fun AppScaffold(
                         darkRoomWarningEnabled = mainState.darkRoomWarningEnabled,
                         postureWarningEnabled = mainState.postureWarningEnabled,
                         schedule = mainState.schedule,
+                        alertSignal = mainState.alertSignal,
                         contentBottomPadding = contentBottomPadding,
                         onChildModeToggle = onChildModeToggle,
                         onThresholdSelect = onThresholdSelect,
@@ -221,6 +229,7 @@ fun AppScaffold(
                         onThemeClick = { navController.navigate(ROUTE_THEME) },
                         onBackgroundClick = { navController.navigate(ROUTE_BACKGROUND) },
                         onScheduleClick = { navController.navigate(ROUTE_SCHEDULE) },
+                        onAlertClick = { navController.navigate(ROUTE_ALERT) },
                     )
                 }
                 composable(ROUTE_LANGUAGE) {
@@ -244,6 +253,16 @@ fun AppScaffold(
                         schedule = mainState.schedule,
                         contentBottomPadding = contentBottomPadding,
                         onChange = onScheduleChange,
+                        onBack = { navController.popBackStack() },
+                    )
+                }
+                composable(ROUTE_ALERT) {
+                    AlertDetailScreen(
+                        signal = mainState.alertSignal,
+                        soundTitle = mainState.alertSoundTitle,
+                        contentBottomPadding = contentBottomPadding,
+                        onSelect = onSelectAlertSignal,
+                        onPickSound = onPickAlertSound,
                         onBack = { navController.popBackStack() },
                     )
                 }
@@ -288,7 +307,7 @@ fun AppScaffold(
                     val currentRoute = navBackStackEntry?.destination?.route
                     topLevelDestinations.forEach { destination ->
                         val selected = currentRoute == destination.route ||
-                            (destination == Destination.Settings && currentRoute in listOf(ROUTE_LANGUAGE, ROUTE_THEME, ROUTE_BACKGROUND, ROUTE_SCHEDULE))
+                            (destination == Destination.Settings && currentRoute in listOf(ROUTE_LANGUAGE, ROUTE_THEME, ROUTE_BACKGROUND, ROUTE_SCHEDULE, ROUTE_ALERT))
                         NavigationBarItem(
                             selected = selected,
                             onClick = {

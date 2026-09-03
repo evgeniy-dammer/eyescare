@@ -10,6 +10,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.core.net.toUri
 import androidx.security.crypto.MasterKey
 
 class SettingsRepository private constructor(context: Context) {
@@ -190,6 +191,22 @@ class SettingsRepository private constructor(context: Context) {
         )
     }
 
+    // --- Сигнал предупреждения «слишком близко» (см. AlertSignal) ---
+
+    fun setAlertSignal(signal: AlertSignal) {
+        prefs.edit().putString(KEY_ALERT_SIGNAL, signal.name).apply()
+    }
+
+    fun getAlertSignal(): AlertSignal = AlertSignal.fromName(prefs.getString(KEY_ALERT_SIGNAL, null))
+
+    /** Выбранный звук предупреждения; `null` — системный звук уведомления по умолчанию. */
+    fun setAlertSoundUri(uri: android.net.Uri?) {
+        prefs.edit().putString(KEY_ALERT_SOUND, uri?.toString()).apply()
+    }
+
+    fun getAlertSoundUri(): android.net.Uri? =
+        prefs.getString(KEY_ALERT_SOUND, null)?.takeIf { it.isNotBlank() }?.toUri()
+
     // --- Usage stats: ряд по дням (см. StatsHistory) ---
 
     /**
@@ -294,6 +311,8 @@ class SettingsRepository private constructor(context: Context) {
         // stats_monitor_sec/stats_tooclose_sec/stats_tooclose_events: перенести их было некуда —
         // недельная сумма не раскладывается обратно по дням, поэтому история начинается с нуля.
         private const val KEY_STATS_HISTORY = "stats_history"
+        private const val KEY_ALERT_SIGNAL = "alert_signal"
+        private const val KEY_ALERT_SOUND = "alert_sound"
 
         private const val IPD_ADULT_DEFAULT = 63.0f
         private const val IPD_CHILD_DEFAULT = 54.0f

@@ -1,13 +1,16 @@
 package com.eyescare
 
 import android.Manifest
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -20,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
+import androidx.core.content.IntentCompat
 import androidx.core.os.LocaleListCompat
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
@@ -63,6 +67,23 @@ class MainActivity : AppCompatActivity() {
         val hasPermission = Settings.canDrawOverlays(this)
         settingsRepository.setOverlayPermissionGranted(hasPermission)
         startMonitoringService()
+    }
+
+    /**
+     * Системный выбор звука уведомления. Берём готовый пикер, а не свой список: у него есть доступ
+     * к медиатеке пользователя, которого у приложения нет и заводить его ради выбора звука
+     * незачем — `INTERNET`-подобных послаблений в этом проекте не делаем.
+     */
+    private val ringtonePickerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode != RESULT_OK) return@registerForActivityResult
+        // Отсутствие URI в ответе — это выбор «Без звука», а не отмена (отмену отсекли выше).
+        val uri: Uri? = IntentCompat.getParcelableExtra(
+            result.data ?: return@registerForActivityResult,
+            RingtoneManager.EXTRA_RINGTONE_PICKED_URI,
+            Uri::class.java,
+        )
+        settingsRepository.setAlertSoundUri(uri)
+        refreshState()
     }
 
     // После возврата из диалога исключения из оптимизации батареи обновляем статус в UI.
@@ -116,6 +137,8 @@ class MainActivity : AppCompatActivity() {
                     onDarkRoomWarningToggle = ::onDarkRoomWarningToggle,
                     onPostureWarningToggle = ::onPostureWarningToggle,
                     onScheduleChange = ::onScheduleChange,
+                    onSelectAlertSignal = ::onSelectAlertSignal,
+                    onPickAlertSound = ::pickAlertSound,
                     onSnooze = ::snoozeMonitoring,
                     onCancelSnooze = ::cancelSnooze,
                     ensureConsent = ::ensureConsent,
@@ -209,6 +232,8 @@ class MainActivity : AppCompatActivity() {
             weeklyStats = settingsRepository.getWeeklyStats(),
             dailyHistory = settingsRepository.getDailyHistory(),
             goodDayStreak = settingsRepository.getGoodDayStreak(),
+            alertSignal = settingsRepository.getAlertSignal(),
+            alertSoundTitle = alertSoundTitle(),
         )
     }
 
@@ -305,6 +330,37 @@ class MainActivity : AppCompatActivity() {
     private fun onScheduleChange(schedule: MonitoringSchedule) {
         settingsRepository.setSchedule(schedule)
         refreshState()
+    }
+
+    private fun onSelectAlertSignal(signal: AlertSignal) {
+        settingsRepository.setAlertSignal(signal)
+        refreshState()
+    }
+
+    private fun pickAlertSound() {
+        val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER).apply {
+            putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION)
+            putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, getString(R.string.alert_sound_pick))
+            putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false) // «без звука» — это сигнал SILENT
+            putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true)
+            putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, settingsRepository.getAlertSoundUri())
+        }
+        // Пикер есть не на всех прошивках; без него настройка просто останется на системном звуке.
+        try {
+            ringtonePickerLauncher.launch(intent)
+        } catch (e: ActivityNotFoundException) {
+            Log.w("MainActivity", "No ringtone picker on this device", e)
+        }
+    }
+
+    /**
+     * Название выбранного звука для строки настроек. Недоступный звук (файл удалён, карта вынута)
+     * показываем как системный: подпись обязана совпадать с тем, что реально прозвучит.
+     */
+    private fun alertSoundTitle(): String {
+        val uri = settingsRepository.getAlertSoundUri() ?: return getString(R.string.alert_sound_default)
+        return runCatching { RingtoneManager.getRingtone(this, uri)?.getTitle(this) }.getOrNull()
+            ?: getString(R.string.alert_sound_default)
     }
 
     /**

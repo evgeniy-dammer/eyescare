@@ -88,7 +88,18 @@
     <string name="stats_history_title">История дистанции</string>
     <string name="stats_history_empty">Данных пока нет. Включите мониторинг — график появится в тот же день.</string>
     <string name="stats_history_threshold">Пунктир — ваш порог, %1$d см</string>
+    <string name="stats_history_legend">Столбики со штриховкой — дни ниже него</string>
+    <string name="stats_history_bar">%1$s: %2$d см</string>
+    <string name="stats_history_bar_empty">%1$s: данных нет</string>
     <string name="stats_streak">Хороших дней подряд</string>
+    <string name="label_alert">Оповещение</string>
+    <string name="alert_silent">Только баннер</string>
+    <string name="alert_vibration">Вибрация</string>
+    <string name="alert_sound">Звук</string>
+    <string name="alert_both">Звук и вибрация</string>
+    <string name="alert_sound_pick">Звук оповещения</string>
+    <string name="alert_sound_default">Системный</string>
+    <string name="alert_hint">Относится к полноэкранному предупреждению. Без разрешения на оверлей предупреждение приходит уведомлением, и его звуком управляет системный канал — меняйте в настройках уведомлений Android.</string>
     <string name="unit_hour">ч</string>
     <string name="unit_min">мин</string>
 

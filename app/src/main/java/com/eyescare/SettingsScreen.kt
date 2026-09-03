@@ -37,12 +37,14 @@ fun SettingsScreen(
     darkRoomWarningEnabled: Boolean,
     postureWarningEnabled: Boolean,
     schedule: MonitoringSchedule,
+    alertSignal: AlertSignal,
     onChildModeToggle: (Boolean) -> Unit,
     onThresholdSelect: (Int) -> Unit,
     onBreakRemindersToggle: (Boolean) -> Unit,
     onDarkRoomWarningToggle: (Boolean) -> Unit,
     onPostureWarningToggle: (Boolean) -> Unit,
     onScheduleClick: () -> Unit,
+    onAlertClick: () -> Unit,
     onLanguageClick: () -> Unit,
     onThemeClick: () -> Unit,
     onBackgroundClick: () -> Unit,
@@ -158,6 +160,21 @@ fun SettingsScreen(
                         stringResource(R.string.schedule_off)
                     },
                     onClick = onScheduleClick,
+                )
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+
+                // Сигнал предупреждения (открывает детальный экран)
+                val alertLabel = when (alertSignal) {
+                    AlertSignal.SILENT -> stringResource(R.string.alert_silent)
+                    AlertSignal.VIBRATION -> stringResource(R.string.alert_vibration)
+                    AlertSignal.SOUND -> stringResource(R.string.alert_sound)
+                    AlertSignal.BOTH -> stringResource(R.string.alert_both)
+                }
+                NavigationRow(
+                    label = stringResource(R.string.label_alert),
+                    value = alertLabel,
+                    onClick = onAlertClick,
                 )
 
                 HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))

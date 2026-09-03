@@ -325,6 +325,70 @@ private fun formatMinuteOfDay(minuteOfDay: Int): String {
     return DateFormat.getTimeFormat(context).format(calendar.time)
 }
 
+/**
+ * Экран выбора сигнала предупреждения (push-детализация).
+ *
+ * Строка выбора звука видна только когда сигнал вообще со звуком: неактивная строка, которую нельзя
+ * нажать, объясняет меньше, чем её отсутствие.
+ */
+@Composable
+fun AlertDetailScreen(
+    signal: AlertSignal,
+    soundTitle: String,
+    contentBottomPadding: Dp,
+    onSelect: (AlertSignal) -> Unit,
+    onPickSound: () -> Unit,
+    onBack: () -> Unit,
+) {
+    DetailScreen(
+        title = stringResource(R.string.label_alert),
+        contentBottomPadding = contentBottomPadding,
+        onBack = onBack,
+    ) {
+        CheckableRow(stringResource(R.string.alert_silent), signal == AlertSignal.SILENT) { onSelect(AlertSignal.SILENT) }
+        CheckableRow(stringResource(R.string.alert_vibration), signal == AlertSignal.VIBRATION) { onSelect(AlertSignal.VIBRATION) }
+        CheckableRow(stringResource(R.string.alert_sound), signal == AlertSignal.SOUND) { onSelect(AlertSignal.SOUND) }
+        CheckableRow(stringResource(R.string.alert_both), signal == AlertSignal.BOTH) { onSelect(AlertSignal.BOTH) }
+
+        if (signal.plays) {
+            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onPickSound)
+                    .padding(horizontal = 16.dp, vertical = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = stringResource(R.string.alert_sound_pick),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(1f),
+                )
+                Text(
+                    text = soundTitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = 4.dp),
+                )
+            }
+        }
+
+        // Честная граница фичи: параметрами канала уведомлений владеет пользователь, приложение их
+        // не переопределяет.
+        Text(
+            text = stringResource(R.string.alert_hint),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+        )
+    }
+}
+
 @Composable
 private fun DetailScreen(
     title: String,

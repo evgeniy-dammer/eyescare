@@ -60,6 +60,11 @@ operate confidently outside my home stack, as an **Agentic Engineering Lead / Pr
 - **Posture reminder** — head tilt from ML Kit combined with device tilt from the gravity sensor
   gives the real neck angle, so it also catches the phone-flat-on-the-desk case a face angle alone
   would miss.
+- **Alert you can live with** — choose banner only, vibration, sound, or both, and pick the sound
+  from the system ringtone picker; it plays as a notification event, so it ducks the video you were
+  leaning in to watch instead of stopping it.
+- **Never colour alone** — bars below your threshold are hatched as well as red, the "too close"
+  state carries an icon next to its label, and the chart reads out day by day under TalkBack.
 - **Pause on demand** — snooze monitoring for 15/30/60 minutes from the app or straight from the
   notification, for legitimate close-up viewing; the service stays alive and only releases the camera.
 - **Child mode** — a more conservative threshold for kids.

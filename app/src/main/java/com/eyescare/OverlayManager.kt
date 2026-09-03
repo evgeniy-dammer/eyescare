@@ -4,10 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
-import android.os.Build
-import android.os.VibrationEffect
-import android.os.Vibrator
-import android.os.VibratorManager
 import android.util.Log
 import android.view.ContextThemeWrapper
 import android.view.Gravity
@@ -23,15 +19,8 @@ class OverlayManager(private val context: Context) {
 
     private var overlayView: View? = null
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-    private val vibrator: Vibrator by lazy {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
-            vibratorManager.defaultVibrator
-        } else {
-            @Suppress("DEPRECATION")
-            context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        }
-    }
+    private val alertPlayer = AlertPlayer(context)
+    private val settingsRepository = SettingsRepository.getInstance(context)
 
     @SuppressLint("ClickableViewAccessibility")
     fun showOverlay() {
@@ -43,7 +32,9 @@ class OverlayManager(private val context: Context) {
 
                 overlayView = layoutInflater.inflate(R.layout.overlay_layout, null)
 
-                vibrator.vibrate(VibrationEffect.createOneShot(150, VibrationEffect.DEFAULT_AMPLITUDE))
+                // Сигнал берём в момент показа, а не при создании менеджера: настройку могли
+                // поменять, пока сервис работает.
+                alertPlayer.play(settingsRepository.getAlertSignal(), settingsRepository.getAlertSoundUri())
 
                 overlayView?.findViewById<Button>(R.id.home_button)?.setOnClickListener {
                     val stopIntent = Intent(context, ForegroundMonitoringService::class.java).apply {
@@ -83,6 +74,7 @@ class OverlayManager(private val context: Context) {
     }
 
     fun hideOverlay() {
+        alertPlayer.stop()
         ContextCompat.getMainExecutor(context).execute {
             overlayView?.let { view ->
                 // Плавное исчезновение: fade + лёгкий scale-down, затем удаляем.

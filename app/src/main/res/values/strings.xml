@@ -91,7 +91,18 @@
     <string name="stats_history_title">Distance history</string>
     <string name="stats_history_empty">No data yet. Turn monitoring on — the chart appears the same day.</string>
     <string name="stats_history_threshold">Dashed line — your threshold, %1$d cm</string>
+    <string name="stats_history_legend">Hatched bars — days below it</string>
+    <string name="stats_history_bar">%1$s: %2$d cm</string>
+    <string name="stats_history_bar_empty">%1$s: no data</string>
     <string name="stats_streak">Good days in a row</string>
+    <string name="label_alert">Alert</string>
+    <string name="alert_silent">Banner only</string>
+    <string name="alert_vibration">Vibration</string>
+    <string name="alert_sound">Sound</string>
+    <string name="alert_both">Sound and vibration</string>
+    <string name="alert_sound_pick">Alert sound</string>
+    <string name="alert_sound_default">System default</string>
+    <string name="alert_hint">Applies to the full-screen warning. When the overlay permission is off, the warning arrives as a notification and its sound belongs to the system channel — change it in Android notification settings.</string>
     <string name="unit_hour">h</string>
     <string name="unit_min">min</string>
 

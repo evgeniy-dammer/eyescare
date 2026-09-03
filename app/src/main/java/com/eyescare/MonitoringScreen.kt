@@ -12,9 +12,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,14 +29,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import android.os.SystemClock
 import kotlinx.coroutines.delay
+import kotlin.math.roundToInt
 
 @Composable
 fun MonitoringScreen(
@@ -125,7 +134,8 @@ private fun DistanceHistoryCard(days: List<DailyStats>, thresholdCm: Int, goodDa
 
             DistanceHistoryChart(days = days, thresholdCm = thresholdCm)
             Text(
-                text = stringResource(R.string.stats_history_threshold, thresholdCm),
+                text = stringResource(R.string.stats_history_threshold, thresholdCm) + "\n" +
+                    stringResource(R.string.stats_history_legend),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -169,11 +179,23 @@ private fun DistanceHistoryChart(days: List<DailyStats>, thresholdCm: Int) {
                 verticalAlignment = Alignment.Bottom,
             ) {
                 days.forEach { day ->
+                    val average = day.averageDistanceCm
+                    // TalkBack не увидит столбик сам: озвучиваем день и значение словами.
+                    val description = if (average == null) {
+                        stringResource(R.string.stats_history_bar_empty, fullWeekdayLabel(day.epochDay, locale))
+                    } else {
+                        stringResource(
+                            R.string.stats_history_bar,
+                            fullWeekdayLabel(day.epochDay, locale),
+                            average.roundToInt(),
+                        )
+                    }
                     DistanceBar(
                         modifier = Modifier.weight(1f),
-                        averageCm = day.averageDistanceCm,
+                        averageCm = average,
                         scaleMax = scaleMax,
                         thresholdCm = thresholdCm,
+                        description = description,
                     )
                 }
             }
@@ -203,26 +225,65 @@ private fun DistanceHistoryChart(days: List<DailyStats>, thresholdCm: Int) {
  *
  * День без замеров — не ноль, а пропуск: рисуем едва заметную подложку, иначе выключенный на день
  * мониторинг выглядел бы как «сидел вплотную к экрану».
+ *
+ * Столбик ниже порога отмечен **и цветом, и штриховкой**. Одного цвета мало: дальтонизм — это
+ * примерно каждый двенадцатый мужчина, а «красный столбик» для него ничем не отличается от
+ * соседнего. Штриховка читается и в оттенках серого.
  */
 @Composable
-private fun DistanceBar(modifier: Modifier, averageCm: Float?, scaleMax: Float, thresholdCm: Int) {
+private fun DistanceBar(
+    modifier: Modifier,
+    averageCm: Float?,
+    scaleMax: Float,
+    thresholdCm: Int,
+    description: String,
+) {
     val belowThreshold = averageCm != null && averageCm < thresholdCm
     val barColor = when {
         averageCm == null -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f)
         belowThreshold -> MaterialTheme.colorScheme.error
         else -> MaterialTheme.colorScheme.primary
     }
+    val hatchColor = MaterialTheme.colorScheme.onError.copy(alpha = 0.55f)
     // Пропуск показываем полной высотой полупрозрачной подложки, значение — долей от шкалы.
     val fraction = if (averageCm == null) 1f else (averageCm / scaleMax).coerceIn(MIN_BAR_FRACTION, 1f)
 
-    Box(modifier = modifier.fillMaxHeight(), contentAlignment = Alignment.BottomCenter) {
+    Box(
+        modifier = modifier
+            .fillMaxHeight()
+            .semantics { contentDescription = description },
+        contentAlignment = Alignment.BottomCenter,
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(fraction)
                 .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
                 .background(barColor),
+        ) {
+            if (belowThreshold) {
+                Canvas(modifier = Modifier.fillMaxSize()) { drawHatch(hatchColor) }
+            }
+        }
+    }
+}
+
+/**
+ * Диагональная штриховка по всей высоте столбика. Линии идут за пределы области — родитель их
+ * обрезает по своей форме, поэтому у скруглённой шапки штрихи не выпирают.
+ */
+private fun DrawScope.drawHatch(color: Color) {
+    val step = HATCH_STEP_DP.dp.toPx()
+    val stroke = HATCH_STROKE_DP.dp.toPx()
+    var x = -size.height
+    while (x < size.width + size.height) {
+        drawLine(
+            color = color,
+            start = Offset(x, size.height),
+            end = Offset(x + size.height, 0f),
+            strokeWidth = stroke,
         )
+        x += step
     }
 }
 
@@ -251,7 +312,16 @@ private fun weekdayLabel(epochDay: Long, locale: java.util.Locale): String =
     java.time.LocalDate.ofEpochDay(epochDay).dayOfWeek
         .getDisplayName(java.time.format.TextStyle.SHORT, locale)
 
+/** Полное имя дня недели — для TalkBack: сокращение вслух звучит как набор букв. */
+private fun fullWeekdayLabel(epochDay: Long, locale: java.util.Locale): String =
+    java.time.LocalDate.ofEpochDay(epochDay).dayOfWeek
+        .getDisplayName(java.time.format.TextStyle.FULL, locale)
+
 private val CHART_HEIGHT = 120.dp
+
+/** Шаг и толщина штриховки «ниже порога»: достаточно редко, чтобы не слиться в заливку. */
+private const val HATCH_STEP_DP = 7
+private const val HATCH_STROKE_DP = 2
 
 /** Совсем короткий столбик выглядел бы как отсутствие данных — держим видимый минимум. */
 private const val MIN_BAR_FRACTION = 0.03f
@@ -475,11 +545,30 @@ private fun LiveDistanceCard(status: MonitoringStatus) {
                         modifier = Modifier.padding(bottom = 8.dp),
                     )
                 }
-                Text(
-                    text = stringResource(if (status.tooClose) R.string.too_close else R.string.status_active),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = if (status.tooClose) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                // «Слишком близко» помечено значком, а не только красным цветом: цвет как
+                // единственный носитель смысла не работает при дальтонизме и на плохом экране.
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    if (status.tooClose) {
+                        Icon(
+                            imageVector = Icons.Filled.Warning,
+                            contentDescription = null, // смысл несёт соседний текст
+                            tint = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
+                    Text(
+                        text = stringResource(if (status.tooClose) R.string.too_close else R.string.status_active),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = if (status.tooClose) {
+                            MaterialTheme.colorScheme.error
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                    )
+                }
                 if (BuildConfig.DEBUG) {
                     IrisComparison(ipdCm = distance, irisCm = status.irisDistanceCm)
                 }

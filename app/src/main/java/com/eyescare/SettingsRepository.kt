@@ -9,8 +9,9 @@ package com.eyescare
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
-import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.core.content.edit
 import androidx.core.net.toUri
+import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 
 class SettingsRepository private constructor(context: Context) {
@@ -50,7 +51,7 @@ class SettingsRepository private constructor(context: Context) {
 
     // --- Monitoring State & Threshold ---
     fun setMonitoringEnabled(enabled: Boolean) {
-        prefs.edit().putBoolean(KEY_MONITORING_ENABLED, enabled).apply()
+        prefs.edit { putBoolean(KEY_MONITORING_ENABLED, enabled) }
     }
 
     fun isMonitoringEnabled(): Boolean {
@@ -58,7 +59,7 @@ class SettingsRepository private constructor(context: Context) {
     }
 
     fun setDistanceThreshold(cm: Int) {
-        prefs.edit().putInt(KEY_DISTANCE_THRESHOLD, cm).apply()
+        prefs.edit { putInt(KEY_DISTANCE_THRESHOLD, cm) }
     }
 
     fun getDistanceThreshold(): Int {
@@ -67,7 +68,7 @@ class SettingsRepository private constructor(context: Context) {
 
     // --- Permissions ---
     fun setOverlayPermissionGranted(granted: Boolean) {
-        prefs.edit().putBoolean(KEY_OVERLAY_PERMISSION, granted).apply()
+        prefs.edit { putBoolean(KEY_OVERLAY_PERMISSION, granted) }
     }
 
     fun isOverlayPermissionGranted(): Boolean {
@@ -76,7 +77,7 @@ class SettingsRepository private constructor(context: Context) {
 
     // --- Theme ---
     fun setThemeMode(mode: ThemeMode) {
-        prefs.edit().putString(KEY_THEME_MODE, mode.name).apply()
+        prefs.edit { putString(KEY_THEME_MODE, mode.name) }
     }
 
     fun getThemeMode(): ThemeMode {
@@ -86,7 +87,7 @@ class SettingsRepository private constructor(context: Context) {
 
     // --- Privacy Consent ---
     fun setPrivacyConsentGiven(given: Boolean) {
-        prefs.edit().putBoolean(KEY_PRIVACY_CONSENT, given).apply()
+        prefs.edit { putBoolean(KEY_PRIVACY_CONSENT, given) }
     }
 
     fun isPrivacyConsentGiven(): Boolean {
@@ -95,7 +96,7 @@ class SettingsRepository private constructor(context: Context) {
 
     // --- Child Mode & IPD ---
     fun setChildMode(enabled: Boolean) {
-        prefs.edit().putBoolean(KEY_CHILD_MODE, enabled).apply()
+        prefs.edit { putBoolean(KEY_CHILD_MODE, enabled) }
     }
 
     fun isChildMode(): Boolean {
@@ -103,7 +104,7 @@ class SettingsRepository private constructor(context: Context) {
     }
 
     fun setCalibratedIpd(ipd: Float) {
-        prefs.edit().putFloat(KEY_CALIBRATED_IPD, ipd).apply()
+        prefs.edit { putFloat(KEY_CALIBRATED_IPD, ipd) }
     }
 
     fun getIpdMm(): Float {
@@ -115,15 +116,14 @@ class SettingsRepository private constructor(context: Context) {
     }
 
     fun clearCalibratedIpd() {
-        prefs.edit().remove(KEY_CALIBRATED_IPD).apply()
+        prefs.edit { remove(KEY_CALIBRATED_IPD) }
     }
 
     // --- Camera Hardware Data ---
     fun saveCameraHardwareProperties(focalLength: Float, sensorWidth: Float) {
-        prefs.edit().apply {
+        prefs.edit {
             putFloat(KEY_HW_FOCAL_LENGTH, focalLength)
             putFloat(KEY_HW_SENSOR_WIDTH, sensorWidth)
-            apply()
         }
     }
 
@@ -134,26 +134,26 @@ class SettingsRepository private constructor(context: Context) {
     fun isOnboardingDone(): Boolean = prefs.getBoolean(KEY_ONBOARDING_DONE, false)
 
     fun setOnboardingDone(done: Boolean) {
-        prefs.edit().putBoolean(KEY_ONBOARDING_DONE, done).apply()
+        prefs.edit { putBoolean(KEY_ONBOARDING_DONE, done) }
     }
 
     // --- Break reminders (20-20-20) ---
     fun setBreakRemindersEnabled(enabled: Boolean) {
-        prefs.edit().putBoolean(KEY_BREAK_REMINDERS, enabled).apply()
+        prefs.edit { putBoolean(KEY_BREAK_REMINDERS, enabled) }
     }
 
     fun isBreakRemindersEnabled(): Boolean = prefs.getBoolean(KEY_BREAK_REMINDERS, true)
 
     // --- Предупреждение о тёмной комнате (датчик освещённости) ---
     fun setDarkRoomWarningEnabled(enabled: Boolean) {
-        prefs.edit().putBoolean(KEY_DARK_ROOM_WARNING, enabled).apply()
+        prefs.edit { putBoolean(KEY_DARK_ROOM_WARNING, enabled) }
     }
 
     fun isDarkRoomWarningEnabled(): Boolean = prefs.getBoolean(KEY_DARK_ROOM_WARNING, true)
 
     // --- Напоминание об осанке (наклон головы) ---
     fun setPostureWarningEnabled(enabled: Boolean) {
-        prefs.edit().putBoolean(KEY_POSTURE_WARNING, enabled).apply()
+        prefs.edit { putBoolean(KEY_POSTURE_WARNING, enabled) }
     }
 
     /**
@@ -165,13 +165,12 @@ class SettingsRepository private constructor(context: Context) {
 
     // --- Расписание мониторинга ---
     fun setSchedule(schedule: MonitoringSchedule) {
-        prefs.edit().apply {
+        prefs.edit {
             putBoolean(KEY_SCHEDULE_ENABLED, schedule.enabled)
             // Дни храним строкой «1,2,3» — читаемо в отладке и не зависит от порядка множества.
             putString(KEY_SCHEDULE_DAYS, schedule.days.sorted().joinToString(","))
             putInt(KEY_SCHEDULE_START, schedule.startMinuteOfDay)
             putInt(KEY_SCHEDULE_END, schedule.endMinuteOfDay)
-            apply()
         }
     }
 
@@ -194,14 +193,14 @@ class SettingsRepository private constructor(context: Context) {
     // --- Сигнал предупреждения «слишком близко» (см. AlertSignal) ---
 
     fun setAlertSignal(signal: AlertSignal) {
-        prefs.edit().putString(KEY_ALERT_SIGNAL, signal.name).apply()
+        prefs.edit { putString(KEY_ALERT_SIGNAL, signal.name) }
     }
 
     fun getAlertSignal(): AlertSignal = AlertSignal.fromName(prefs.getString(KEY_ALERT_SIGNAL, null))
 
     /** Выбранный звук предупреждения; `null` — системный звук уведомления по умолчанию. */
     fun setAlertSoundUri(uri: android.net.Uri?) {
-        prefs.edit().putString(KEY_ALERT_SOUND, uri?.toString()).apply()
+        prefs.edit { putString(KEY_ALERT_SOUND, uri?.toString()) }
     }
 
     fun getAlertSoundUri(): android.net.Uri? =
@@ -219,7 +218,7 @@ class SettingsRepository private constructor(context: Context) {
     private fun mutateHistory(mutate: (StatsHistory, Long) -> StatsHistory) = synchronized(statsLock) {
         val today = java.time.LocalDate.now().toEpochDay()
         val updated = mutate(StatsHistory.parse(prefs.getString(KEY_STATS_HISTORY, null)), today)
-        prefs.edit().putString(KEY_STATS_HISTORY, updated.serialize()).apply()
+        prefs.edit { putString(KEY_STATS_HISTORY, updated.serialize()) }
     }
 
     /**

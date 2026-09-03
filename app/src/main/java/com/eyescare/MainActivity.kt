@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import androidx.core.content.IntentCompat
+import androidx.core.net.toUri
 import androidx.core.os.LocaleListCompat
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
@@ -388,7 +389,7 @@ class MainActivity : AppCompatActivity() {
      */
     private fun requestBatteryExemption() {
         if (isIgnoringBatteryOptimizations()) return
-        val direct = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:$packageName"))
+        val direct = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, "package:$packageName".toUri())
         try {
             batteryExemptionLauncher.launch(direct)
         } catch (e: Exception) {
@@ -421,7 +422,7 @@ class MainActivity : AppCompatActivity() {
         }
         // Фолбэк: карточка приложения в системных настройках.
         try {
-            startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName")))
+            startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, "package:$packageName".toUri()))
         } catch (_: Exception) {
             // недоступно — молча выходим
         }
@@ -464,7 +465,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkOverlayPermission() {
         if (!Settings.canDrawOverlays(this)) {
-            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
+            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, "package:$packageName".toUri())
             overlayPermissionLauncher.launch(intent)
         } else {
             settingsRepository.setOverlayPermissionGranted(true)

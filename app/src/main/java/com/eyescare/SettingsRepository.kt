@@ -16,6 +16,9 @@ class SettingsRepository private constructor(context: Context) {
 
     private val prefs: SharedPreferences = createEncryptedPrefs(context.applicationContext)
 
+    /** Защищает read-modify-write истории использования (см. [mutateHistory]). */
+    private val statsLock = Any()
+
     /**
      * Создаёт зашифрованное хранилище. Если файл или мастер-ключ повреждены
      * (например, после restore из бэкапа на другом устройстве или ротации ключей),
@@ -187,44 +190,67 @@ class SettingsRepository private constructor(context: Context) {
         )
     }
 
-    // --- Weekly usage stats (сбрасываются в начале новой недели) ---
-    private fun rolloverStatsIfNeeded() {
-        val current = weekIdForEpochDay(java.time.LocalDate.now().toEpochDay())
-        if (prefs.getLong(KEY_STATS_WEEK_ID, Long.MIN_VALUE) != current) {
-            prefs.edit()
-                .putLong(KEY_STATS_WEEK_ID, current)
-                .putLong(KEY_STATS_MONITOR_SEC, 0)
-                .putLong(KEY_STATS_TOOCLOSE_SEC, 0)
-                .putInt(KEY_STATS_TOOCLOSE_EVENTS, 0)
-                .apply()
+    // --- Usage stats: ряд по дням (см. StatsHistory) ---
+
+    /**
+     * Читает историю, применяет [mutate] и пишет обратно под замком.
+     *
+     * Замок нужен потому, что вся история лежит в одном значении: параллельные read-modify-write из
+     * потока камеры и из тика статистики иначе потеряли бы одно из обновлений целиком, а не одно
+     * поле. Записи редкие (периодический сброс и переходы «слишком близко»), борьбы за замок нет.
+     */
+    private fun mutateHistory(mutate: (StatsHistory, Long) -> StatsHistory) = synchronized(statsLock) {
+        val today = java.time.LocalDate.now().toEpochDay()
+        val updated = mutate(StatsHistory.parse(prefs.getString(KEY_STATS_HISTORY, null)), today)
+        prefs.edit().putString(KEY_STATS_HISTORY, updated.serialize()).apply()
+    }
+
+    /**
+     * Дописывает накопленное за отрезок к сегодняшнему дню.
+     *
+     * Отрезок, начавшийся вчера вечером, целиком попадёт в сегодня — сброс идёт раз в несколько
+     * минут, так что «протечь» через полночь может лишь этот интервал; делить отрезок по дням ради
+     * такой точности не стоит усложнения.
+     */
+    fun addStats(
+        monitoringSeconds: Long = 0,
+        tooCloseSeconds: Long = 0,
+        tooCloseEvents: Int = 0,
+        distanceSumCm: Long = 0,
+        distanceSamples: Long = 0,
+    ) {
+        if (monitoringSeconds <= 0 && tooCloseSeconds <= 0 && tooCloseEvents <= 0 && distanceSamples <= 0) return
+        mutateHistory { history, today ->
+            history.plus(
+                DailyStats(
+                    epochDay = today,
+                    monitoringSeconds = monitoringSeconds.coerceAtLeast(0),
+                    tooCloseSeconds = tooCloseSeconds.coerceAtLeast(0),
+                    tooCloseEvents = tooCloseEvents.coerceAtLeast(0),
+                    distanceSumCm = distanceSumCm.coerceAtLeast(0),
+                    distanceSamples = distanceSamples.coerceAtLeast(0),
+                ),
+                todayEpochDay = today,
+            )
         }
     }
 
-    fun addMonitoringSeconds(seconds: Long) {
-        if (seconds <= 0) return
-        rolloverStatsIfNeeded()
-        prefs.edit().putLong(KEY_STATS_MONITOR_SEC, prefs.getLong(KEY_STATS_MONITOR_SEC, 0) + seconds).apply()
-    }
+    /** Сводка за последние [StatsHistory.WEEK_DAYS] дней. */
+    fun getWeeklyStats(): WeeklyStats =
+        statsHistory().totalsForLastDays(java.time.LocalDate.now().toEpochDay(), StatsHistory.WEEK_DAYS)
 
-    fun addTooCloseSeconds(seconds: Long) {
-        if (seconds <= 0) return
-        rolloverStatsIfNeeded()
-        prefs.edit().putLong(KEY_STATS_TOOCLOSE_SEC, prefs.getLong(KEY_STATS_TOOCLOSE_SEC, 0) + seconds).apply()
-    }
+    /** Последние [count] дней по возрастанию, с пустыми днями на местах пропусков — для графика. */
+    fun getDailyHistory(count: Int = StatsHistory.WEEK_DAYS): List<DailyStats> =
+        statsHistory().lastDays(java.time.LocalDate.now().toEpochDay(), count)
 
-    fun incrementTooCloseEvents() {
-        rolloverStatsIfNeeded()
-        prefs.edit().putInt(KEY_STATS_TOOCLOSE_EVENTS, prefs.getInt(KEY_STATS_TOOCLOSE_EVENTS, 0) + 1).apply()
-    }
+    /** Серия подряд идущих дней без заметного «слишком близко» (см. [StatsHistory.goodDayStreak]). */
+    fun getGoodDayStreak(): Int = statsHistory().goodDayStreak(
+        todayEpochDay = java.time.LocalDate.now().toEpochDay(),
+        maxTooCloseShare = StatsHistory.GOOD_DAY_MAX_TOO_CLOSE_SHARE,
+    )
 
-    fun getWeeklyStats(): WeeklyStats {
-        rolloverStatsIfNeeded()
-        return WeeklyStats(
-            monitoringSeconds = prefs.getLong(KEY_STATS_MONITOR_SEC, 0),
-            tooCloseSeconds = prefs.getLong(KEY_STATS_TOOCLOSE_SEC, 0),
-            tooCloseEvents = prefs.getInt(KEY_STATS_TOOCLOSE_EVENTS, 0),
-        )
-    }
+    private fun statsHistory(): StatsHistory =
+        synchronized(statsLock) { StatsHistory.parse(prefs.getString(KEY_STATS_HISTORY, null)) }
 
     companion object {
         @Volatile
@@ -264,10 +290,10 @@ class SettingsRepository private constructor(context: Context) {
         private const val KEY_SCHEDULE_DAYS = "schedule_days"
         private const val KEY_SCHEDULE_START = "schedule_start"
         private const val KEY_SCHEDULE_END = "schedule_end"
-        private const val KEY_STATS_WEEK_ID = "stats_week_id"
-        private const val KEY_STATS_MONITOR_SEC = "stats_monitor_sec"
-        private const val KEY_STATS_TOOCLOSE_SEC = "stats_tooclose_sec"
-        private const val KEY_STATS_TOOCLOSE_EVENTS = "stats_tooclose_events"
+        // Ряд по дням (StatsHistory). Пришёл на смену недельным счётчикам stats_week_id/
+        // stats_monitor_sec/stats_tooclose_sec/stats_tooclose_events: перенести их было некуда —
+        // недельная сумма не раскладывается обратно по дням, поэтому история начинается с нуля.
+        private const val KEY_STATS_HISTORY = "stats_history"
 
         private const val IPD_ADULT_DEFAULT = 63.0f
         private const val IPD_CHILD_DEFAULT = 54.0f

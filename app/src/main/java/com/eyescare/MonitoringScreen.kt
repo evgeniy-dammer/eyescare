@@ -1,13 +1,16 @@
 package com.eyescare
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,6 +24,8 @@ import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -34,6 +39,9 @@ fun MonitoringScreen(
     enabled: Boolean,
     onToggle: (Boolean) -> Unit,
     weeklyStats: WeeklyStats = WeeklyStats(),
+    dailyHistory: List<DailyStats> = emptyList(),
+    goodDayStreak: Int = 0,
+    thresholdCm: Int = 30,
     snoozeOptionsMinutes: List<Int> = emptyList(),
     onSnooze: (minutes: Int) -> Unit = {},
     onCancelSnooze: () -> Unit = {},
@@ -87,8 +95,166 @@ fun MonitoringScreen(
         }
 
         WeeklyStatsCard(weeklyStats)
+        DistanceHistoryCard(days = dailyHistory, thresholdCm = thresholdCm, goodDayStreak = goodDayStreak)
     }
 }
+
+/**
+ * История дистанции: средняя за каждый из последних дней и порог, к которому её сравнивают.
+ *
+ * Зачем график, если рядом уже есть сводка: сумма за неделю отвечает только на «сколько всего» и
+ * ничего не говорит о том, стало лучше или хуже. Динамику видно только рядом по дням.
+ */
+@Composable
+private fun DistanceHistoryCard(days: List<DailyStats>, thresholdCm: Int, goodDayStreak: Int) {
+    GlassCard(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(
+                text = stringResource(R.string.stats_history_title),
+                style = MaterialTheme.typography.titleMedium,
+            )
+
+            if (days.none { it.hasData }) {
+                Text(
+                    text = stringResource(R.string.stats_history_empty),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                return@Column
+            }
+
+            DistanceHistoryChart(days = days, thresholdCm = thresholdCm)
+            Text(
+                text = stringResource(R.string.stats_history_threshold, thresholdCm),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            if (goodDayStreak > 0) {
+                StatRow(stringResource(R.string.stats_streak), goodDayStreak.toString())
+            }
+        }
+    }
+}
+
+/**
+ * Столбики средней дистанции по дням с пунктирной линией порога.
+ *
+ * Шкала начинается от нуля: обрезанная снизу ось растянула бы разницу в пару сантиметров до
+ * драматической — на графике про здоровье это была бы ложь. Верх берём с запасом от большего из
+ * (максимум, порог), чтобы линия порога всегда попадала в кадр.
+ */
+@Composable
+private fun DistanceHistoryChart(days: List<DailyStats>, thresholdCm: Int) {
+    val locale = LocalLocale.current.platformLocale
+    val maxValue = days.mapNotNull { it.averageDistanceCm }.maxOrNull() ?: 0f
+    val scaleMax = (maxOf(maxValue, thresholdCm.toFloat()) * 1.2f).coerceAtLeast(1f)
+    val todayEpochDay = days.lastOrNull()?.epochDay // ряд заканчивается сегодняшним днём
+
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Box(modifier = Modifier.fillMaxWidth().height(CHART_HEIGHT)) {
+            // Линия порога лежит под столбиками: она ориентир, а не главный объект.
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(thresholdCm / scaleMax)
+                    .align(Alignment.BottomStart),
+                contentAlignment = Alignment.TopStart,
+            ) {
+                DashedLine()
+            }
+
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.Bottom,
+            ) {
+                days.forEach { day ->
+                    DistanceBar(
+                        modifier = Modifier.weight(1f),
+                        averageCm = day.averageDistanceCm,
+                        scaleMax = scaleMax,
+                        thresholdCm = thresholdCm,
+                    )
+                }
+            }
+        }
+
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            days.forEach { day ->
+                val isToday = day.epochDay == todayEpochDay
+                Text(
+                    text = weekdayLabel(day.epochDay, locale),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = if (isToday) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Один день: столбик высотой в среднюю дистанцию.
+ *
+ * День без замеров — не ноль, а пропуск: рисуем едва заметную подложку, иначе выключенный на день
+ * мониторинг выглядел бы как «сидел вплотную к экрану».
+ */
+@Composable
+private fun DistanceBar(modifier: Modifier, averageCm: Float?, scaleMax: Float, thresholdCm: Int) {
+    val belowThreshold = averageCm != null && averageCm < thresholdCm
+    val barColor = when {
+        averageCm == null -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.12f)
+        belowThreshold -> MaterialTheme.colorScheme.error
+        else -> MaterialTheme.colorScheme.primary
+    }
+    // Пропуск показываем полной высотой полупрозрачной подложки, значение — долей от шкалы.
+    val fraction = if (averageCm == null) 1f else (averageCm / scaleMax).coerceIn(MIN_BAR_FRACTION, 1f)
+
+    Box(modifier = modifier.fillMaxHeight(), contentAlignment = Alignment.BottomCenter) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(fraction)
+                .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                .background(barColor),
+        )
+    }
+}
+
+/** Пунктир порога: сплошная линия читалась бы как ещё один столбик. */
+@Composable
+private fun DashedLine() {
+    val color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+    Canvas(modifier = Modifier.fillMaxWidth().height(1.dp)) {
+        drawLine(
+            color = color,
+            start = Offset(0f, 0f),
+            end = Offset(size.width, 0f),
+            strokeWidth = size.height,
+            pathEffect = PathEffect.dashPathEffect(floatArrayOf(8f, 8f)),
+        )
+    }
+}
+
+/**
+ * Короткое имя дня недели в языке приложения.
+ *
+ * Локаль берём из LocalLocale (а не из Locale.getDefault): у приложения свой выбор языка, и
+ * системная локаль не пересобирает UI при его смене.
+ */
+private fun weekdayLabel(epochDay: Long, locale: java.util.Locale): String =
+    java.time.LocalDate.ofEpochDay(epochDay).dayOfWeek
+        .getDisplayName(java.time.format.TextStyle.SHORT, locale)
+
+private val CHART_HEIGHT = 120.dp
+
+/** Совсем короткий столбик выглядел бы как отсутствие данных — держим видимый минимум. */
+private const val MIN_BAR_FRACTION = 0.03f
 
 /** Мониторинг включён, но сейчас вне окна расписания — камера отпущена намеренно. */
 @Composable

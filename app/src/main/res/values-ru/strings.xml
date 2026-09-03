@@ -81,10 +81,14 @@
     <string name="snooze_title">Пауза мониторинга</string>
     <string name="snooze_option_minutes">%1$d мин</string>
     <string name="snooze_remaining">Пауза — осталось %1$d мин</string>
-    <string name="stats_title">За неделю</string>
+    <string name="stats_title">За 7 дней</string>
     <string name="stats_monitoring_time">Время мониторинга</string>
     <string name="stats_too_close_time">Слишком близко</string>
     <string name="stats_too_close_events">Сближений</string>
+    <string name="stats_history_title">История дистанции</string>
+    <string name="stats_history_empty">Данных пока нет. Включите мониторинг — график появится в тот же день.</string>
+    <string name="stats_history_threshold">Пунктир — ваш порог, %1$d см</string>
+    <string name="stats_streak">Хороших дней подряд</string>
     <string name="unit_hour">ч</string>
     <string name="unit_min">мин</string>
 

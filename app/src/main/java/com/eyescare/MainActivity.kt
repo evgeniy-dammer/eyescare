@@ -207,6 +207,8 @@ class MainActivity : AppCompatActivity() {
             postureWarningEnabled = settingsRepository.isPostureWarningEnabled(),
             schedule = settingsRepository.getSchedule(),
             weeklyStats = settingsRepository.getWeeklyStats(),
+            dailyHistory = settingsRepository.getDailyHistory(),
+            goodDayStreak = settingsRepository.getGoodDayStreak(),
         )
     }
 

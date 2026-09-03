@@ -156,6 +156,9 @@ class ForegroundMonitoringService : LifecycleService() {
             settingsRepository = settingsRepository,
             onDistanceUpdate = { distance ->
                 lastKnownDistance = distance
+                // Замер идёт в среднюю дистанцию за день; в хранилище попадёт при сбросе
+                // статистики, а не на каждом кадре.
+                distance?.let { stats.addDistanceSample(it) }
                 MonitoringStateHolder.setDistance(distance) // «живой» показ в UI
                 updateNotification(null) // Обновляем с последним расстоянием
                 maybeRemindBreak(facePresent = distance != null) // правило 20-20-20
@@ -457,9 +460,9 @@ class ForegroundMonitoringService : LifecycleService() {
         val now = SystemClock.elapsedRealtime()
         if (isExceeded) {
             stats.tooCloseEngaged(now)
-            settingsRepository.incrementTooCloseEvents()
+            settingsRepository.addStats(tooCloseEvents = 1)
         } else {
-            settingsRepository.addTooCloseSeconds(stats.tooCloseReleased(now))
+            settingsRepository.addStats(tooCloseSeconds = stats.tooCloseReleased(now))
         }
 
         if (settingsRepository.isOverlayPermissionGranted()) {
@@ -475,8 +478,12 @@ class ForegroundMonitoringService : LifecycleService() {
      */
     private fun flushStats(keepCounting: Boolean) {
         val flushed = stats.flush(SystemClock.elapsedRealtime(), keepCounting)
-        settingsRepository.addMonitoringSeconds(flushed.monitoringSeconds)
-        settingsRepository.addTooCloseSeconds(flushed.tooCloseSeconds)
+        settingsRepository.addStats(
+            monitoringSeconds = flushed.monitoringSeconds,
+            tooCloseSeconds = flushed.tooCloseSeconds,
+            distanceSumCm = flushed.distanceSumCm,
+            distanceSamples = flushed.distanceSamples,
+        )
     }
 
     /** Правило 20-20-20: если включено и пора — показываем мягкое напоминание о перерыве. */

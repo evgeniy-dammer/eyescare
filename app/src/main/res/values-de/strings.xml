@@ -79,10 +79,14 @@
     <string name="snooze_title">Überwachung pausieren</string>
     <string name="snooze_option_minutes">%1$d Min.</string>
     <string name="snooze_remaining">Pausiert — noch %1$d Min.</string>
-    <string name="stats_title">Diese Woche</string>
+    <string name="stats_title">Letzte 7 Tage</string>
     <string name="stats_monitoring_time">Überwachungszeit</string>
     <string name="stats_too_close_time">Zu nah</string>
     <string name="stats_too_close_events">Annäherungen</string>
+    <string name="stats_history_title">Abstandsverlauf</string>
+    <string name="stats_history_empty">Noch keine Daten. Schalte die Überwachung ein — das Diagramm erscheint noch am selben Tag.</string>
+    <string name="stats_history_threshold">Gestrichelte Linie — dein Grenzwert, %1$d cm</string>
+    <string name="stats_streak">Gute Tage in Folge</string>
     <string name="unit_hour">Std</string>
     <string name="unit_min">Min</string>
     <string name="unit_cm">cm</string>

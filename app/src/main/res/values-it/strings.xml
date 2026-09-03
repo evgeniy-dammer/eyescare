@@ -80,10 +80,14 @@
     <string name="snooze_title">Metti in pausa</string>
     <string name="snooze_option_minutes">%1$d min</string>
     <string name="snooze_remaining">In pausa: %1$d min rimanenti</string>
-    <string name="stats_title">Questa settimana</string>
+    <string name="stats_title">Ultimi 7 giorni</string>
     <string name="stats_monitoring_time">Tempo di monitoraggio</string>
     <string name="stats_too_close_time">Troppo vicino</string>
     <string name="stats_too_close_events">Avvicinamenti</string>
+    <string name="stats_history_title">Cronologia della distanza</string>
+    <string name="stats_history_empty">Ancora nessun dato. Attiva il monitoraggio: il grafico compare lo stesso giorno.</string>
+    <string name="stats_history_threshold">Linea tratteggiata: la tua soglia, %1$d cm</string>
+    <string name="stats_streak">Giorni buoni di fila</string>
     <string name="unit_hour">h</string>
     <string name="unit_min">min</string>
     <string name="unit_cm">cm</string>

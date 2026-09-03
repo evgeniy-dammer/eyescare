@@ -68,6 +68,9 @@ data class MainUiState(
     val postureWarningEnabled: Boolean = false,
     val schedule: MonitoringSchedule = MonitoringSchedule(),
     val weeklyStats: WeeklyStats = WeeklyStats(),
+    /** Последние дни по возрастанию, с пустыми днями на местах пропусков (см. [StatsHistory]). */
+    val dailyHistory: List<DailyStats> = emptyList(),
+    val goodDayStreak: Int = 0,
 )
 
 private const val ROUTE_LANGUAGE = "language"
@@ -173,6 +176,9 @@ fun AppScaffold(
                         enabled = mainState.monitoringEnabled,
                         onToggle = onMonitoringToggle,
                         weeklyStats = mainState.weeklyStats,
+                        dailyHistory = mainState.dailyHistory,
+                        goodDayStreak = mainState.goodDayStreak,
+                        thresholdCm = mainState.threshold,
                         snoozeOptionsMinutes = ForegroundMonitoringService.SNOOZE_OPTIONS_MINUTES,
                         onSnooze = onSnooze,
                         onCancelSnooze = onCancelSnooze,

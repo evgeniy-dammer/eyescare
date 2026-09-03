@@ -43,10 +43,44 @@ class StatsAccumulatorTest {
     }
 
     @Test
+    fun `distance samples are flushed as a sum and a count`() {
+        val a = StatsAccumulator()
+        a.addDistanceSample(30f)
+        a.addDistanceSample(50f)
+        val f = a.flush(1_000, keepCounting = true)
+        assertEquals(80, f.distanceSumCm)
+        assertEquals(2, f.distanceSamples)
+        // Замеры отданы — при следующем сбросе их уже нет, даже если отрезок продолжается.
+        assertEquals(0, a.flush(2_000, keepCounting = true).distanceSamples)
+    }
+
+    @Test
+    fun `distance samples are rounded, not truncated`() {
+        val a = StatsAccumulator()
+        a.addDistanceSample(29.6f)
+        a.addDistanceSample(29.6f)
+        // Усечение дало бы 58 — среднее уехало бы на полсантиметра вниз, в сторону ложной тревоги.
+        assertEquals(60, a.flush(1_000, keepCounting = true).distanceSumCm)
+    }
+
+    @Test
+    fun `broken distance readings are ignored`() {
+        val a = StatsAccumulator()
+        a.addDistanceSample(0f)
+        a.addDistanceSample(-15f)
+        a.addDistanceSample(Float.NaN)
+        a.addDistanceSample(Float.POSITIVE_INFINITY)
+        val f = a.flush(1_000, keepCounting = true)
+        assertEquals(0, f.distanceSamples)
+        assertEquals(0, f.distanceSumCm)
+    }
+
+    @Test
     fun `flush is a no-op when nothing started`() {
         val a = StatsAccumulator()
         val f = a.flush(5_000, keepCounting = false)
         assertEquals(0, f.monitoringSeconds)
         assertEquals(0, f.tooCloseSeconds)
+        assertEquals(0, f.distanceSamples)
     }
 }

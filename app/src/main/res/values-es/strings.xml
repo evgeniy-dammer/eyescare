@@ -80,10 +80,14 @@
     <string name="snooze_title">Pausar la supervisión</string>
     <string name="snooze_option_minutes">%1$d min</string>
     <string name="snooze_remaining">En pausa: quedan %1$d min</string>
-    <string name="stats_title">Esta semana</string>
+    <string name="stats_title">Últimos 7 días</string>
     <string name="stats_monitoring_time">Tiempo de monitorización</string>
     <string name="stats_too_close_time">Demasiado cerca</string>
     <string name="stats_too_close_events">Acercamientos</string>
+    <string name="stats_history_title">Historial de distancia</string>
+    <string name="stats_history_empty">Aún no hay datos. Activa la supervisión: el gráfico aparece el mismo día.</string>
+    <string name="stats_history_threshold">Línea discontinua: tu umbral, %1$d cm</string>
+    <string name="stats_streak">Días buenos seguidos</string>
     <string name="unit_hour">h</string>
     <string name="unit_min">min</string>
     <string name="unit_cm">cm</string>

@@ -80,10 +80,14 @@
     <string name="snooze_title">Mettre en pause</string>
     <string name="snooze_option_minutes">%1$d min</string>
     <string name="snooze_remaining">En pause — %1$d min restantes</string>
-    <string name="stats_title">Cette semaine</string>
+    <string name="stats_title">7 derniers jours</string>
     <string name="stats_monitoring_time">Temps de surveillance</string>
     <string name="stats_too_close_time">Trop près</string>
     <string name="stats_too_close_events">Rapprochements</string>
+    <string name="stats_history_title">Historique des distances</string>
+    <string name="stats_history_empty">Pas encore de données. Activez la surveillance : le graphique apparaît le jour même.</string>
+    <string name="stats_history_threshold">Ligne pointillée — votre seuil, %1$d cm</string>
+    <string name="stats_streak">Bons jours d\'affilée</string>
     <string name="unit_hour">h</string>
     <string name="unit_min">min</string>
     <string name="unit_cm">cm</string>

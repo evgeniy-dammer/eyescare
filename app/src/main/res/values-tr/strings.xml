@@ -79,10 +79,14 @@
     <string name="snooze_title">İzlemeyi duraklat</string>
     <string name="snooze_option_minutes">%1$d dk</string>
     <string name="snooze_remaining">Duraklatıldı — %1$d dk kaldı</string>
-    <string name="stats_title">Bu hafta</string>
+    <string name="stats_title">Son 7 gün</string>
     <string name="stats_monitoring_time">İzleme süresi</string>
     <string name="stats_too_close_time">Çok yakın</string>
     <string name="stats_too_close_events">Yakınlaşmalar</string>
+    <string name="stats_history_title">Mesafe geçmişi</string>
+    <string name="stats_history_empty">Henüz veri yok. İzlemeyi açın — grafik aynı gün görünür.</string>
+    <string name="stats_history_threshold">Kesik çizgi — eşiğiniz, %1$d cm</string>
+    <string name="stats_streak">Üst üste iyi gün</string>
     <string name="unit_hour">sa</string>
     <string name="unit_min">dk</string>
     <string name="unit_cm">cm</string>

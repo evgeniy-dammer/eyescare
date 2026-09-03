@@ -50,7 +50,11 @@ operate confidently outside my home stack, as an **Agentic Engineering Lead / Pr
 - **Runs in the background** — a foreground service keeps monitoring while you use other apps.
 - **Calibration** — automatic (fit your face in the oval) or manual interpupillary-distance entry.
 - **Eye-care habits** — 20-20-20 break reminders that open a guided break screen (look far away,
-  then blink) instead of a notification that is easy to swipe away, plus a weekly usage summary.
+  then blink) instead of a notification that is easy to swipe away.
+- **Distance history** — average distance per day for the last 30 days against your own threshold,
+  kept as a compact series in the encrypted store; a rolling 7-day summary and a good-day streak are
+  computed from the same series. Days without data are drawn as gaps, not zeros, and the scale
+  starts at zero — a truncated axis would turn two centimetres into a cliff.
 - **Dark-room warning** — the ambient-light sensor (not the camera) notices when you're staring at a
   bright screen in the dark, with hysteresis, a dwell time and a cooldown so it never nags.
 - **Posture reminder** — head tilt from ML Kit combined with device tilt from the gravity sensor

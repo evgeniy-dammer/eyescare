@@ -14,6 +14,8 @@ data class MonitoringStatus(
     val irisDistanceCm: Float? = null,
     /** Момент окончания снуза в шкале [android.os.SystemClock.elapsedRealtime]; `null` — снуза нет. */
     val snoozeUntilElapsedMs: Long? = null,
+    /** Сейчас вне окна расписания: камера отпущена намеренно, дистанции нет и не будет. */
+    val pausedBySchedule: Boolean = false,
 )
 
 /**
@@ -29,6 +31,7 @@ object MonitoringStateHolder {
     fun setTooClose(tooClose: Boolean) = _state.update { it.copy(tooClose = tooClose) }
     fun setIrisDistance(distanceCm: Float?) = _state.update { it.copy(irisDistanceCm = distanceCm) }
     fun setSnoozeUntil(untilElapsedMs: Long?) = _state.update { it.copy(snoozeUntilElapsedMs = untilElapsedMs) }
+    fun setPausedBySchedule(paused: Boolean) = _state.update { it.copy(pausedBySchedule = paused) }
 
     /** Сбрасывает состояние при остановке сервиса. */
     fun reset() {

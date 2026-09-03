@@ -1,6 +1,8 @@
 package com.eyescare
 
 import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.os.SystemClock
 import android.view.WindowManager
 import androidx.activity.compose.BackHandler
@@ -57,17 +59,21 @@ fun BreakScreen(onFinish: () -> Unit) {
     // бы мониторинг на паузу по ACTION_SCREEN_OFF.
     val view = LocalView.current
     DisposableEffect(view) {
-        val window = (view.context as? Activity)?.window
+        val window = view.context.findActivity()?.window
         window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         onDispose { window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) }
     }
 
     val startMs = remember { SystemClock.elapsedRealtime() }
 
-    // Тик чаще секунды — чтобы анимация шла плавно, а не рывками раз в секунду.
+    // Тик чаще секунды — чтобы анимация шла плавно, а не рывками раз в секунду. После конца
+    // перерыва цикл ОСТАНАВЛИВАЕТСЯ: иначе экран, оставленный открытым, продолжал бы просыпаться
+    // каждые 50 мс и держать подсветку включённой сколь угодно долго.
     val elapsed by produceState(initialValue = 0L, startMs) {
         while (true) {
-            value = SystemClock.elapsedRealtime() - startMs
+            val now = SystemClock.elapsedRealtime() - startMs
+            value = now
+            if (now >= BreakExercise.TOTAL_MS) break
             delay(50)
         }
     }
@@ -142,6 +148,20 @@ fun BreakScreen(onFinish: () -> Unit) {
             }
         }
     }
+}
+
+/**
+ * Activity из контекста View: у Compose это может быть не сама Activity, а обёртка
+ * ([ContextWrapper]/`ContextThemeWrapper`). Прямой каст в таком случае молча дал бы `null`, и флаг
+ * «не гасить экран» тихо не применился бы — то есть фича сломалась бы без единого признака.
+ */
+private fun Context.findActivity(): Activity? {
+    var context: Context? = this
+    while (context is ContextWrapper) {
+        if (context is Activity) return context
+        context = context.baseContext
+    }
+    return null
 }
 
 /**

@@ -68,20 +68,51 @@ fun MonitoringScreen(
         }
 
         if (enabled) {
-            // Во время паузы камера выключена намеренно, и «лицо не найдено» ввело бы в
-            // заблуждение: карточка паузы ниже сама объясняет, что происходит.
-            if (status.snoozeUntilElapsedMs == null) {
-                LiveDistanceCard(status)
+            // Пока камера отпущена намеренно — по снузу или по расписанию — «лицо не найдено»
+            // вводило бы в заблуждение: показываем причину, а не отсутствие данных.
+            when {
+                status.pausedBySchedule -> OutsideScheduleCard()
+                status.snoozeUntilElapsedMs != null -> Unit // объяснит карточка паузы ниже
+                else -> LiveDistanceCard(status)
             }
-            SnoozeCard(
-                snoozeUntilElapsedMs = status.snoozeUntilElapsedMs,
-                optionsMinutes = snoozeOptionsMinutes,
-                onSnooze = onSnooze,
-                onCancel = onCancelSnooze,
-            )
+            // Ставить паузу поверх паузы по расписанию бессмысленно — прячем управление.
+            if (!status.pausedBySchedule) {
+                SnoozeCard(
+                    snoozeUntilElapsedMs = status.snoozeUntilElapsedMs,
+                    optionsMinutes = snoozeOptionsMinutes,
+                    onSnooze = onSnooze,
+                    onCancel = onCancelSnooze,
+                )
+            }
         }
 
         WeeklyStatsCard(weeklyStats)
+    }
+}
+
+/** Мониторинг включён, но сейчас вне окна расписания — камера отпущена намеренно. */
+@Composable
+private fun OutsideScheduleCard() {
+    GlassCard(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 32.dp, horizontal = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.notif_outside_schedule),
+                style = MaterialTheme.typography.titleMedium,
+                textAlign = TextAlign.Center,
+            )
+            Text(
+                text = stringResource(R.string.schedule_hint),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+            )
+        }
     }
 }
 

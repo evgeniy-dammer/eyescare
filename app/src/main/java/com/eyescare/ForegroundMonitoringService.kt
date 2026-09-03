@@ -53,7 +53,7 @@ class ForegroundMonitoringService : LifecycleService() {
     /** Наклон устройства от вертикали; null — данных от датчика ещё не было. */
     private var deviceTiltDeg: Float? = null
     private var sensorsRegistered = false
-    private var lastSensorLogMs = 0L
+    private val lastSensorLogMs = mutableMapOf<String, Long>()
 
     private val sensorListener = object : SensorEventListener {
         override fun onSensorChanged(event: SensorEvent) {
@@ -217,21 +217,26 @@ class ForegroundMonitoringService : LifecycleService() {
             return START_NOT_STICKY
         }
 
-        // Явный запуск — это решение пользователя включить мониторинг: снимаем снуз, если он
-        // почему-то остался от предыдущего цикла, чтобы камера и состояние паузы не разъехались.
+        // Явный запуск — новая сессия мониторинга, поэтому снимаем ВСЕ накопленные причины паузы.
+        // START может прийти и на живой экземпляр сервиса (например, созданный PendingIntent'ом
+        // снуза из уведомления, который не выставляет running) — тогда старые причины разъехались
+        // бы с фактическим состоянием камеры.
         handler.removeCallbacks(snoozeExpiryRunnable)
-        if (pause.isSnoozed) {
-            pause.resume(PauseReason.SNOOZE)
-            MonitoringStateHolder.setSnoozeUntil(null)
-        }
+        pause.reset()
+        MonitoringStateHolder.setSnoozeUntil(null)
+        MonitoringStateHolder.setPausedBySchedule(false)
 
-        cameraAnalyzer.start()
-        startSensors()
-        MonitoringStateHolder.setRunning(true)
-        stats.startMonitoring(SystemClock.elapsedRealtime())
-        handler.postDelayed(statsFlushRunnable, STATS_FLUSH_INTERVAL_MS)
-        // Сразу приводим состояние в соответствие расписанию: включить мониторинг могли и вне окна.
+        // Расписание спрашиваем ДО камеры: включить мониторинг могли и вне окна — тогда поднимать
+        // камеру не нужно вовсе, а не поднимать и тут же отпускать.
         applySchedule()
+        if (!pause.isPaused) acquireCamera()
+        MonitoringStateHolder.setRunning(true)
+
+        // removeCallbacks перед каждым postDelayed: без него повторный START удваивал бы тики,
+        // а каждый следующий — удваивал снова, потому что оба Runnable перезапускают сами себя.
+        handler.removeCallbacks(statsFlushRunnable)
+        handler.postDelayed(statsFlushRunnable, STATS_FLUSH_INTERVAL_MS)
+        handler.removeCallbacks(scheduleRunnable)
         handler.postDelayed(scheduleRunnable, SCHEDULE_CHECK_INTERVAL_MS)
         // НЕ sticky: авто-перезапуск системой camera-FGS на Android 14+ ненадёжен (нельзя вывести
         // while-in-use сервис в foreground из фона). Восстановление — через авто-возобновление при
@@ -330,9 +335,11 @@ class ForegroundMonitoringService : LifecycleService() {
         val pausedBySchedule = pause.isPausedBySchedule
         if (allowed && pausedBySchedule) {
             resumeMonitoring(PauseReason.SCHEDULE)
+            MonitoringStateHolder.setPausedBySchedule(false)
             updateNotification(null, force = true)
         } else if (!allowed && !pausedBySchedule) {
             pauseMonitoring(PauseReason.SCHEDULE)
+            MonitoringStateHolder.setPausedBySchedule(true)
             updateNotification(null, force = true)
         }
     }
@@ -366,20 +373,29 @@ class ForegroundMonitoringService : LifecycleService() {
      * выставить. Троттлится, чтобы не залить logcat.
      * Смотреть: `adb logcat -s EyesCareSensors`.
      */
-    private fun logSensors(message: String) {
+    private fun logSensors(stream: String, message: String) {
         if (!BuildConfig.DEBUG) return
         val now = SystemClock.elapsedRealtime()
-        if (now - lastSensorLogMs < SENSOR_LOG_INTERVAL_MS) return
-        lastSensorLogMs = now
+        // Троттлинг раздельный по потокам: кадры с лицом идут заметно чаще замеров света
+        // (в прогоне на устройстве — 88 строк против 15), и общий счётчик вытеснял люксы из лога
+        // ровно тогда, когда по ним и надо было подбирать пороги.
+        if (now - (lastSensorLogMs[stream] ?: 0L) < SENSOR_LOG_INTERVAL_MS) return
+        lastSensorLogMs[stream] = now
         Log.d("EyesCareSensors", message)
     }
 
     /** Освещённость: предупреждение о тёмной комнате. */
     private fun onLuxSample(lux: Float) {
-        logSensors("lux=%.1f tilt=%s".format(lux, deviceTiltDeg?.let { "%.1f".format(it) } ?: "—"))
+        logSensors("lux", "lux=%.1f tilt=%s".format(lux, deviceTiltDeg?.let { "%.1f".format(it) } ?: "—"))
         // Настройки проверяем в момент замера, а не при подписке: тумблер можно переключить, пока
         // сервис уже работает, и переподписываться на каждое изменение настроек не хочется.
-        if (!settingsRepository.isDarkRoomWarningEnabled()) return
+        if (!settingsRepository.isDarkRoomWarningEnabled()) {
+            // Сбрасываем так же, как для осанки: иначе отсчёт «темно» замирает на выключенной
+            // настройке, и при повторном включении в той же темноте выдержка окажется уже
+            // пройденной — предупреждение выстрелит мгновенно.
+            ambientLight.reset()
+            return
+        }
         if (ambientLight.update(SystemClock.elapsedRealtime(), lux)) {
             notifications.showDarkRoom()
         }
@@ -396,12 +412,14 @@ class ForegroundMonitoringService : LifecycleService() {
             return
         }
         val tilt = deviceTiltDeg
-        if (headEulerXDeg == null || tilt == null) {
+        // Неправдоподобный наклон устройства (перевёрнутый телефон) дал бы огромный flexion при
+        // ровной шее — такие кадры отбрасываем, а не судим по ним об осанке.
+        if (headEulerXDeg == null || tilt == null || !PostureMath.isPlausibleTilt(tilt)) {
             posture.reset()
             return
         }
         val flexion = PostureMath.neckFlexionDeg(tilt, headEulerXDeg)
-        logSensors("tilt=%.1f headEulerX=%.1f flexion=%.1f".format(tilt, headEulerXDeg, flexion))
+        logSensors("posture", "tilt=%.1f headEulerX=%.1f flexion=%.1f".format(tilt, headEulerXDeg, flexion))
         if (posture.update(SystemClock.elapsedRealtime(), flexion)) {
             notifications.showPosture()
         }

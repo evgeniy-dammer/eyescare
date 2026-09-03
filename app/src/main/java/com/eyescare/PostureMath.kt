@@ -1,5 +1,6 @@
 package com.eyescare
 
+import kotlin.math.abs
 import kotlin.math.atan2
 
 /**
@@ -48,4 +49,17 @@ object PostureMath {
      * подбородок к груди — до −65° (flexion 61°). Порог напоминания 30° ложится ровно между.
      */
     fun neckFlexionDeg(deviceTiltDeg: Float, headEulerXDeg: Float): Float = deviceTiltDeg - headEulerXDeg
+
+    /**
+     * Правдоподобен ли наклон устройства для сценария «человек смотрит в экран».
+     *
+     * `atan2` возвращает весь диапазон ±180°, и при перевёрнутом телефоне наклон уходит к ±180° —
+     * тогда flexion оказывается далеко за порогом даже при совершенно ровной шее. Такие кадры
+     * означают не сутулость, а неправдоподобную геометрию: по ним нельзя судить об осанке, их надо
+     * отбрасывать.
+     */
+    fun isPlausibleTilt(tiltDeg: Float): Boolean = abs(tiltDeg) <= MAX_PLAUSIBLE_TILT_DEG
+
+    /** Чуть больше «телефон лежит экраном вверх» (90°) — с запасом на реальные позы за столом. */
+    const val MAX_PLAUSIBLE_TILT_DEG = 100f
 }

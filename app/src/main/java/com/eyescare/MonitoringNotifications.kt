@@ -178,6 +178,7 @@ class MonitoringNotifications(private val context: Context) {
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true)
+            .setContentIntent(launchApp(REQ_DARK_ROOM))
             .build()
         manager.notify(DARK_ROOM_ID, n)
     }
@@ -191,19 +192,29 @@ class MonitoringNotifications(private val context: Context) {
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true)
+            .setContentIntent(launchApp(REQ_POSTURE))
             .build()
         manager.notify(POSTURE_ID, n)
+    }
+
+    /**
+     * Открыть приложение по тапу. Нужен даже там, где действие «просто открыть»: без
+     * `contentIntent` флаг `setAutoCancel(true)` не срабатывает, и уведомление нельзя убрать
+     * тапом — только смахнуть.
+     */
+    private fun launchApp(requestCode: Int): PendingIntent {
+        val launch = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        return PendingIntent.getActivity(
+            context, requestCode, launch, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
     }
 
     /** Напоминание «возобновить мониторинг» — тап открывает приложение (после перезагрузки/выгрузки OEM). */
     fun showResume() {
         if (!hasPermission()) return
-        val launch = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-        }
-        val pending = PendingIntent.getActivity(
-            context, 0, launch, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-        )
+        val pending = launchApp(REQ_RESUME)
         val n = NotificationCompat.Builder(context, RESUME_CHANNEL_ID)
             .setContentTitle(context.getString(R.string.resume_title))
             .setContentText(context.getString(R.string.resume_text))
@@ -229,6 +240,9 @@ class MonitoringNotifications(private val context: Context) {
         private const val REQ_SNOOZE = 1
         private const val REQ_CANCEL_SNOOZE = 2
         private const val REQ_BREAK = 3
+        private const val REQ_DARK_ROOM = 4
+        private const val REQ_POSTURE = 5
+        private const val REQ_RESUME = 6
 
         private const val CHANNEL_ID = "monitoring_service"
         private const val WARNING_CHANNEL_ID = "warning_service"

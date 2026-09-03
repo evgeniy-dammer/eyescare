@@ -1,6 +1,8 @@
 package com.eyescare
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class PostureMathTest {
@@ -37,6 +39,22 @@ class PostureMathTest {
     fun `phone leaned toward the user gives negative tilt`() {
         val c = g * 0.7071f
         assertEquals(-45f, PostureMath.deviceTiltFromVerticalDeg(gravityY = c, gravityZ = -c), 0.5f)
+    }
+
+    @Test
+    fun `plausible tilt covers normal poses`() {
+        assertTrue(PostureMath.isPlausibleTilt(0f))    // телефон вертикально
+        assertTrue(PostureMath.isPlausibleTilt(86f))   // лежит на столе
+        assertTrue(PostureMath.isPlausibleTilt(-45f))  // наклонён к пользователю
+    }
+
+    @Test
+    fun `upside down device is rejected instead of read as slouching`() {
+        // Перевёрнутый телефон даёт наклон около ±180°, и без отсева это выглядело бы как
+        // сутулость в 180° при совершенно ровной шее.
+        assertFalse(PostureMath.isPlausibleTilt(180f))
+        assertFalse(PostureMath.isPlausibleTilt(-180f))
+        assertFalse(PostureMath.isPlausibleTilt(130f))
     }
 
     @Test

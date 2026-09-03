@@ -237,7 +237,11 @@ fun ScheduleDetailScreen(
                         )
                         .clickable {
                             val days = if (selected) schedule.days - day else schedule.days + day
-                            onChange(schedule.copy(days = days))
+                            // Последний день снять нельзя: пустой набор дал бы «расписание
+                            // включено, но не работает никогда» — то же бесполезное состояние,
+                            // от которого уже защищены совпадающие границы времени. Выключить
+                            // расписание целиком можно тумблером выше.
+                            if (days.isNotEmpty()) onChange(schedule.copy(days = days))
                         }
                         .padding(vertical = 10.dp),
                     contentAlignment = Alignment.Center,

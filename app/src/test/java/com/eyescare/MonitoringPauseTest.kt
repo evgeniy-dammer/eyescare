@@ -123,6 +123,23 @@ class MonitoringPauseTest {
     }
 
     @Test
+    fun `reset clears every reason and the snooze`() {
+        val p = MonitoringPause()
+        p.pause(PauseReason.SCREEN_OFF)
+        p.pause(PauseReason.SCHEDULE)
+        p.snooze(0, tenMin)
+
+        p.reset()
+
+        assertFalse(p.isPaused)
+        assertFalse(p.isSnoozed)
+        assertFalse(p.isPausedBySchedule)
+        assertNull(p.snoozeUntilMs())
+        // После сброса первая же причина снова обязана сообщить «камеру отпустить».
+        assertTrue(p.pause(PauseReason.SCREEN_OFF))
+    }
+
+    @Test
     fun `manual resume clears the snooze deadline`() {
         val p = MonitoringPause()
         p.snooze(0, tenMin)
